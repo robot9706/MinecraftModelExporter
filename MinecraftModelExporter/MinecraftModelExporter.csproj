@@ -1,0 +1,192 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1252359C-E253-4760-A58D-D17CD83B9927}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MinecraftModelExporter</RootNamespace>
+    <AssemblyName>MinecraftModelExporter</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'x86andx64|AnyCPU'">
+    <OutputPath>bin\x86andx64\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Dependencies\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="NamedBinaryTag, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Dependencies\NamedBinaryTag.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AbortableBackgroundWorker.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="API\FileReaderInfoAttribute.cs" />
+    <Compile Include="API\FileWriterInfoAttribute.cs" />
+    <Compile Include="Builtins\MCEditSchematicReader.cs" />
+    <Compile Include="Builtins\OBJFileWriter.cs" />
+    <Compile Include="Data\ResourcePack.cs" />
+    <Compile Include="FileSelect.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="FileSelect.Designer.cs">
+      <DependentUpon>FileSelect.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GeometryProcessor\BitHelper.cs" />
+    <Compile Include="GeometryProcessor\Block.cs" />
+    <Compile Include="GeometryProcessor\BlockData.cs" />
+    <Compile Include="GeometryProcessor\BlockRange.cs" />
+    <Compile Include="GeometryProcessor\BlockSource.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Bed.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Dispenser.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Dropper.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Furnace.cs" />
+    <Compile Include="GeometryProcessor\Blocks\FurnaceBurning.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Glass.cs" />
+    <Compile Include="GeometryProcessor\Blocks\HardenedClay.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Ladder.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Leaves.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Liquid.cs" />
+    <Compile Include="GeometryProcessor\ExportConfig.cs" />
+    <Compile Include="GeometryProcessor\MetadataSolidBlock.cs" />
+    <Compile Include="GeometryProcessor\MetadataSolidTextureBlock.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Piston.cs" />
+    <Compile Include="GeometryProcessor\Blocks\PlusShapedBlock.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Pumpkin.cs" />
+    <Compile Include="GeometryProcessor\Blocks\PumpkinLanterns.cs" />
+    <Compile Include="GeometryProcessor\Blocks\QuartzBlock.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Rails.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Sandstone.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Saplings.cs" />
+    <Compile Include="GeometryProcessor\Blocks\SimpleFlower.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Stairs.cs" />
+    <Compile Include="GeometryProcessor\Blocks\StickyPiston.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Stonebricks.cs" />
+    <Compile Include="GeometryProcessor\Blocks\StoneSlab.cs" />
+    <Compile Include="GeometryProcessor\Blocks\TallGrass.cs" />
+    <Compile Include="GeometryProcessor\Blocks\WoodenPlanks.cs" />
+    <Compile Include="GeometryProcessor\Blocks\WoodenSlab.cs" />
+    <Compile Include="GeometryProcessor\Blocks\WoodTrunk.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Wool.cs" />
+    <Compile Include="GeometryProcessor\CustomBlockData.cs" />
+    <Compile Include="GeometryProcessor\SolidBlock.cs" />
+    <Compile Include="GeometryProcessor\TextureBuilder.cs" />
+    <Compile Include="PartProgressTaskForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PartProgressTaskForm.Designer.cs">
+      <DependentUpon>PartProgressTaskForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Data\ImportedData.cs" />
+    <Compile Include="Data\ProcessedGeometryData.cs" />
+    <Compile Include="ExportTask.cs" />
+    <Compile Include="IO\FileReader.cs" />
+    <Compile Include="IO\FileWriter.cs" />
+    <Compile Include="Logger.cs" />
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PluginManager.cs" />
+    <Compile Include="Point3.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TaskForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TaskForm.Designer.cs">
+      <DependentUpon>TaskForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Vector2.cs" />
+    <Compile Include="Vector3.cs" />
+    <Compile Include="Vector4.cs" />
+    <EmbeddedResource Include="FileSelect.resx">
+      <DependentUpon>FileSelect.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PartProgressTaskForm.resx">
+      <DependentUpon>PartProgressTaskForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="TaskForm.resx">
+      <DependentUpon>TaskForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <None Include="Resources\DefaultTexturePack.zip" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Dependencies\ICSharpCode.SharpZipLib.dll" />
+    <Content Include="Dependencies\NamedBinaryTag.dll" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <Target Name="AfterBuild">
+    <MSBuild Condition=" '$(Platform)' == 'x86' " Projects="$(MSBuildProjectFile)" Properties="Platform=x64;PlatFormTarget=x64" RunEachTargetSeparately="true" />
+  </Target>
+</Project>

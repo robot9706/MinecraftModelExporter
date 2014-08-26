@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinecraftModelExporter", "MinecraftModelExporter\MinecraftModelExporter.csproj", "{1252359C-E253-4760-A58D-D17CD83B9927}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+		x86andx64|Any CPU = x86andx64|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1252359C-E253-4760-A58D-D17CD83B9927}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1252359C-E253-4760-A58D-D17CD83B9927}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1252359C-E253-4760-A58D-D17CD83B9927}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1252359C-E253-4760-A58D-D17CD83B9927}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1252359C-E253-4760-A58D-D17CD83B9927}.x86andx64|Any CPU.ActiveCfg = x86andx64|Any CPU
+		{1252359C-E253-4760-A58D-D17CD83B9927}.x86andx64|Any CPU.Build.0 = x86andx64|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

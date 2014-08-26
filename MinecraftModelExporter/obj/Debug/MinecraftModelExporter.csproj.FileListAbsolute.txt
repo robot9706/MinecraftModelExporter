@@ -1,0 +1,17 @@
+D:\CSharp\Main\MinecraftModelExporter\MinecraftModelExporter\obj\Debug\MinecraftModelExporter.csprojResolveAssemblyReference.cache
+D:\CSharp\Main\MinecraftModelExporter\MinecraftModelExporter\obj\Debug\MinecraftModelExporter.MainForm.resources
+D:\CSharp\Main\MinecraftModelExporter\MinecraftModelExporter\obj\Debug\MinecraftModelExporter.Properties.Resources.resources
+D:\CSharp\Main\MinecraftModelExporter\MinecraftModelExporter\obj\Debug\MinecraftModelExporter.csproj.GenerateResource.Cache
+D:\CSharp\Main\MinecraftModelExporter\MinecraftModelExporter\bin\Debug\MinecraftModelExporter.exe
+D:\CSharp\Main\MinecraftModelExporter\MinecraftModelExporter\bin\Debug\MinecraftModelExporter.pdb
+D:\CSharp\Main\MinecraftModelExporter\MinecraftModelExporter\bin\Debug\NamedBinaryTag.dll
+D:\CSharp\Main\MinecraftModelExporter\MinecraftModelExporter\obj\Debug\MinecraftModelExporter.exe
+D:\CSharp\Main\MinecraftModelExporter\MinecraftModelExporter\obj\Debug\MinecraftModelExporter.pdb
+D:\CSharp\Main\MinecraftModelExporter\MinecraftModelExporter\obj\Debug\MinecraftModelExporter.PartProgressTaskForm.resources
+D:\CSharp\Main\MinecraftModelExporter\MinecraftModelExporter\obj\Debug\MinecraftModelExporter.TaskForm.resources
+D:\CSharp\Main\MinecraftModelExporter\MinecraftModelExporter\obj\Debug\MinecraftModelExporter.FileSelect.resources
+D:\CSharp\Main\MinecraftModelExporter\MinecraftModelExporter\bin\Debug\ICSharpCode.SharpZipLib.dll
+D:\CSharp\Main\MinecraftModelExporter\MinecraftModelExporter\bin\Debug\MinecraftModelExporter.exe.config
+C:\Users\Bence\Documents\GitHub\MinecraftModelExporter\MinecraftModelExporter\bin\Debug\MinecraftModelExporter.exe.config
+C:\Users\Bence\Documents\GitHub\MinecraftModelExporter\MinecraftModelExporter\obj\Debug\MinecraftModelExporter.exe
+C:\Users\Bence\Documents\GitHub\MinecraftModelExporter\MinecraftModelExporter\obj\Debug\MinecraftModelExporter.pdb
