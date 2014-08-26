@@ -45,7 +45,6 @@
             this.texDataPanel = new System.Windows.Forms.Panel();
             this.defaultTexResButton = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
-            this.fileSelect1 = new MinecraftModelExporter.FileSelect();
             this.texOutFolder = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.interiorOnly = new System.Windows.Forms.CheckBox();
@@ -57,6 +56,8 @@
             this.mainTip = new System.Windows.Forms.ToolTip(this.components);
             this.loadCfg = new System.Windows.Forms.Button();
             this.saveCfg = new System.Windows.Forms.Button();
+            this.cp = new System.Windows.Forms.Label();
+            this.fileSelect1 = new MinecraftModelExporter.FileSelect();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.processBox.SuspendLayout();
@@ -247,17 +248,6 @@
             this.label4.TabIndex = 3;
             this.label4.Text = "Resource pack:";
             // 
-            // fileSelect1
-            // 
-            this.fileSelect1.FilePath = "";
-            this.fileSelect1.Filter = "Zip files|*.zip";
-            this.fileSelect1.Location = new System.Drawing.Point(8, 53);
-            this.fileSelect1.Margin = new System.Windows.Forms.Padding(4);
-            this.fileSelect1.Name = "fileSelect1";
-            this.fileSelect1.Size = new System.Drawing.Size(236, 26);
-            this.fileSelect1.TabIndex = 2;
-            this.fileSelect1.OnFileSelected += new MinecraftModelExporter.FileSelect.OnFileSelectedHandler(this.fileSelect1_OnFileSelected);
-            // 
             // texOutFolder
             // 
             this.texOutFolder.Location = new System.Drawing.Point(90, 2);
@@ -363,10 +353,33 @@
             this.saveCfg.UseVisualStyleBackColor = true;
             this.saveCfg.Click += new System.EventHandler(this.saveCfg_Click);
             // 
+            // cp
+            // 
+            this.cp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.cp.AutoSize = true;
+            this.cp.ForeColor = System.Drawing.Color.Silver;
+            this.cp.Location = new System.Drawing.Point(730, 384);
+            this.cp.Name = "cp";
+            this.cp.Size = new System.Drawing.Size(73, 16);
+            this.cp.TabIndex = 10;
+            this.cp.Text = "Robot9706";
+            // 
+            // fileSelect1
+            // 
+            this.fileSelect1.FilePath = "";
+            this.fileSelect1.Filter = "Zip files|*.zip";
+            this.fileSelect1.Location = new System.Drawing.Point(8, 53);
+            this.fileSelect1.Margin = new System.Windows.Forms.Padding(4);
+            this.fileSelect1.Name = "fileSelect1";
+            this.fileSelect1.Size = new System.Drawing.Size(236, 26);
+            this.fileSelect1.TabIndex = 2;
+            this.fileSelect1.OnFileSelected += new MinecraftModelExporter.FileSelect.OnFileSelectedHandler(this.fileSelect1_OnFileSelected);
+            // 
             // MainForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.ClientSize = new System.Drawing.Size(803, 401);
+            this.Controls.Add(this.cp);
             this.Controls.Add(this.saveCfg);
             this.Controls.Add(this.processBox);
             this.Controls.Add(this.loadCfg);
@@ -388,6 +401,7 @@
             this.texDataPanel.ResumeLayout(false);
             this.texDataPanel.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -421,6 +435,7 @@
         private System.Windows.Forms.Button defaultTexResButton;
         private System.Windows.Forms.CheckBox exportUV;
         private System.Windows.Forms.CheckBox exportNormals;
+        private System.Windows.Forms.Label cp;
     }
 }
 
