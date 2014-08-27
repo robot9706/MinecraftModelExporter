@@ -7,22 +7,33 @@ using System.Threading;
 
 namespace MinecraftModelExporter
 {
-    public class AbortableBackgroundWorker : BackgroundWorker
+    public class AbortableBackgroundWorker : Component
     {
         private Thread workerThread;
 
-        protected override void OnDoWork(DoWorkEventArgs e)
+        public event EventHandler DoWork;
+        public event EventHandler RunWorkerCompleted;
+
+        public ProgressChangedEventArgs CurrentProgress;
+
+        public AbortableBackgroundWorker()
         {
-            workerThread = Thread.CurrentThread;
-            try
-            {
-                base.OnDoWork(e);
-            }
-            catch (ThreadAbortException)
-            {
-                e.Cancel = true; 
-                Thread.ResetAbort(); 
-            }
+            workerThread = new Thread(new ThreadStart(DoWork_Thread));
+            workerThread.IsBackground = true;
+        }
+
+        private void DoWork_Thread()
+        {
+            if (DoWork != null)
+                DoWork(this, null);
+
+            if (RunWorkerCompleted != null)
+                SafeEventCall.CallSafe(RunWorkerCompleted, this, null);
+        }
+
+        public void RunWorkerAsync()
+        {
+            workerThread.Start();
         }
 
         public void Abort()
@@ -32,6 +43,11 @@ namespace MinecraftModelExporter
                 workerThread.Abort();
                 workerThread = null;
             }
+        }
+
+        public void ReportProgress(int percent, object userData)
+        {
+            CurrentProgress = new ProgressChangedEventArgs(percent, userData);
         }
     }
 }

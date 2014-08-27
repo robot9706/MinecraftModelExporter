@@ -154,7 +154,10 @@ namespace MinecraftModelExporter
                 if (task.Success)
                     srcFileTextBox.Text = file;
 
-                dimsLbl.Text = String.Format((string)dimsLbl.Tag, _sourceData.ModelSize.X.ToString() + "x" + _sourceData.ModelSize.Y.ToString() + "x" + _sourceData.ModelSize.Z.ToString());
+                if (_sourceData != null)
+                {
+                    dimsLbl.Text = String.Format((string)dimsLbl.Tag, _sourceData.ModelSize.X.ToString() + "x" + _sourceData.ModelSize.Y.ToString() + "x" + _sourceData.ModelSize.Z.ToString());
+                }
             }
 
             processBox.Enabled = (Path.IsPathRooted(srcFileTextBox.Text) && Path.IsPathRooted(srcFileTextBox.Text));

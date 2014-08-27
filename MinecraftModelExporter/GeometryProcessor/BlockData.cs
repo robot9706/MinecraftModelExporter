@@ -17,7 +17,16 @@ namespace MinecraftModelExporter.GeometryProcessor
 
         public bool IsSolid
         {
-            get { if (IsAir) return false; return (!Block.Blocks[GetGlobalID()].IsTransparent()); }
+            get
+            {
+                if (IsAir)
+                    return false;
+
+                Block b = Block.Blocks[GetGlobalID()];
+                if (b == null)
+                    return false;
+                return (!b.IsTransparent()); 
+            }
         }
 
         public BlockData(uint Id, byte mt)

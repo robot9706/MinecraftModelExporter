@@ -34,13 +34,6 @@ namespace MinecraftModelExporter
             _arg = arg;
 
             _report = new PartTaskProgressReport(worker);
-            _report.SetTitle("");
-            _report.SetPartPercent(0);
-            _report.SetTotalPercent(0);
-
-            worker_ProgressChanged(null, new ProgressChangedEventArgs(0, _report));
-
-            worker.RunWorkerAsync();
         }
 
         private void cancel_Click(object sender, EventArgs e)
@@ -49,24 +42,42 @@ namespace MinecraftModelExporter
             Close();
         }
 
-        private void worker_DoWork(object sender, DoWorkEventArgs e)
+        private void worker_DoWork(object sender, EventArgs e)
         {
+#if RELEASE
             try
             {
+#endif
                 _success = _taskFunction(_arg, _report);
                 if (!_success)
                 {
                     _ex = new Exception(string.Empty);
                 }
+#if RELEASE
             }
             catch (Exception ex)
             {
                 _ex = ex;
             }
+#endif
         }
 
-        private void worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void worker_RunWorkerCompleted(object sender, EventArgs e)
         {
+            if (_ex != null)
+            {
+                if (string.IsNullOrEmpty(_ex.Message))
+                    MessageBox.Show("Task failed because of exception: " + _ex.Message);
+                else
+                    MessageBox.Show("Task failed!");
+            }
+            Close();
+        }
+
+        private void uiTimer_Tick(object sender, EventArgs a)
+        {
+            ProgressChangedEventArgs e = worker.CurrentProgress;
+
             if (e.UserState is PartTaskProgressReport)
             {
                 PartTaskProgressReport r = (PartTaskProgressReport)e.UserState;
@@ -85,16 +96,16 @@ namespace MinecraftModelExporter
             }
         }
 
-        private void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        private void PartProgressTaskForm_Shown(object sender, EventArgs e)
         {
-            if (_ex != null)
-            {
-                if (string.IsNullOrEmpty(_ex.Message))
-                    MessageBox.Show("Task failed because of exception: " + _ex.Message);
-                else
-                    MessageBox.Show("Task failed!");
-            }
-            Close();
+            _report.SetTitle("Starting");
+            _report.SetPartPercent(0);
+            _report.SetTotalPercent(0);
+            _report.Report();
+
+            uiTimer.Start();
+
+            worker.RunWorkerAsync();
         }
     }
 

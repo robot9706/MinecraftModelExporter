@@ -28,11 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.taskLabel = new System.Windows.Forms.Label();
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.cancelButton = new System.Windows.Forms.Button();
             this.worker = new MinecraftModelExporter.AbortableBackgroundWorker();
             this.pLbl = new System.Windows.Forms.Label();
+            this.uiUpdate = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // taskLabel
@@ -64,11 +66,8 @@
             // 
             // worker
             // 
-            this.worker.WorkerReportsProgress = true;
-            this.worker.WorkerSupportsCancellation = true;
-            this.worker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.worker_DoWork);
-            this.worker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.worker_ProgressChanged);
-            this.worker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.worker_RunWorkerCompleted);
+            this.worker.DoWork += new System.EventHandler(this.worker_DoWork);
+            this.worker.RunWorkerCompleted += new System.EventHandler(this.worker_RunWorkerCompleted);
             // 
             // pLbl
             // 
@@ -79,6 +78,10 @@
             this.pLbl.TabIndex = 5;
             this.pLbl.Text = "100%";
             this.pLbl.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // uiUpdate
+            // 
+            this.uiUpdate.Tick += new System.EventHandler(this.uiUpdate_Tick);
             // 
             // TaskForm
             // 
@@ -95,6 +98,7 @@
             this.Name = "TaskForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "TaskForm";
+            this.Shown += new System.EventHandler(this.TaskForm_Shown);
             this.ResumeLayout(false);
 
         }
@@ -106,5 +110,6 @@
         private System.Windows.Forms.Button cancelButton;
         private AbortableBackgroundWorker worker;
         private System.Windows.Forms.Label pLbl;
+        private System.Windows.Forms.Timer uiUpdate;
     }
 }

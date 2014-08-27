@@ -44,6 +44,9 @@ namespace MinecraftModelExporter
 
         public bool Export(object arg, TaskProgressReport p)
         {
+            int maxTotalTask = 8; //6 normals + geom build + file write
+            int currentTotalTask = 0;
+
             PartTaskProgressReport rep = (PartTaskProgressReport)p;
 
             rep.SetTitle("Preparing input data");
@@ -73,6 +76,10 @@ namespace MinecraftModelExporter
                 for (int lvl = 0; lvl < _in.BlockIDs.GetLength(xyLength.Z); lvl++)
                 {
                     BlockData[,] lvlData = new BlockData[xs, ys];
+
+                    int partMax = xs * ys;
+                    int partProg = 0;
+
                     for (int a = 0; a < _in.BlockIDs.GetLength(xyLength.X); a++)
                     {
                         for (int b = 0; b < _in.BlockIDs.GetLength(xyLength.Y); b++)
@@ -135,6 +142,10 @@ namespace MinecraftModelExporter
                                     }
                                 }
                             }
+
+                            partProg++;
+                            rep.SetPartPercent((int)(((float)partProg / (float)partMax) * 100f));
+                            rep.Report();
                         }
                     }
 
@@ -173,13 +184,18 @@ namespace MinecraftModelExporter
                         ranges.Add(new Vector4(normal.X, normal.Y, normal.Z, lvl), converted.ToArray());
                     }
                 }
+
+                currentTotalTask++;
+                rep.SetTotalPercent((int)(((float)currentTotalTask / (float)maxTotalTask) * 100f));
+                rep.Report();
             }
 
             rep.SetTitle("Building geometry");
             rep.Report();
 
-            Dictionary<ulong, DataSet> datas = new Dictionary<ulong, DataSet>();
+            Dictionary<KeyStruct, DataSet> datas = new Dictionary<KeyStruct, DataSet>();
 
+            int pairIndex = 0;
             foreach (KeyValuePair<Vector4, BlockRange[]> pair in ranges)
             {
                 Vector3 normal = new Vector3(pair.Key.X, pair.Key.Y, pair.Key.Z);
@@ -197,12 +213,19 @@ namespace MinecraftModelExporter
                 {
                     WriteRange(pair.Value[x], normal, level, addNormal, ref datas);
                 }
+
+                pairIndex++;
+                rep.SetTotalPercent((int)(((float)pairIndex / (float)ranges.Count) * 100f));
+                rep.Report();
             }
 
             for (int x = 0; x < customData.Count; x++)
             {
                 WriteCustomData(customData[x], ref datas);
             }
+
+            rep.SetTotalPercent(100);
+            rep.Report();
 
             if (_cfg.CenterObject)
             {
@@ -211,7 +234,7 @@ namespace MinecraftModelExporter
 
                 Vector3 min = new Vector3(0, 0, 0);
                 Vector3 max = new Vector3(0, 0, 0);
-                foreach (KeyValuePair<ulong, DataSet> pair2 in datas)
+                foreach (KeyValuePair<KeyStruct, DataSet> pair2 in datas)
                 {
                     foreach (Vector3 v in pair2.Value.verts)
                     {
@@ -226,7 +249,7 @@ namespace MinecraftModelExporter
                 }
 
                 Vector3 move = (max - min) / 2;
-                foreach (KeyValuePair<ulong, DataSet> pair2 in datas)
+                foreach (KeyValuePair<KeyStruct, DataSet> pair2 in datas)
                 {
                     for (int x = 0; x < pair2.Value.verts.Count; x++)
                     {
@@ -235,13 +258,16 @@ namespace MinecraftModelExporter
                 }
             }
 
+            currentTotalTask++;
+            rep.SetTotalPercent((int)(((float)currentTotalTask / (float)maxTotalTask) * 100f));
+
             rep.SetTitle("Creating vertex data");
             rep.Report();
 
             ProcessedGeometryData geom = new ProcessedGeometryData();
             geom.ExportConfig = _cfg;
 
-            foreach (KeyValuePair<ulong, DataSet> pair2 in datas)
+            foreach (KeyValuePair<KeyStruct, DataSet> pair2 in datas)
             {
                 geom.Data.Add(pair2.Value);
             }
@@ -252,6 +278,9 @@ namespace MinecraftModelExporter
             //Export textures
             if (_cfg.ExportTextures)
             {
+                rep.SetTitle("Exporting textures");
+                rep.Report();
+
                 List<string> failedTextures = new List<string>();
 
                 string textureOutput = Path.Combine(Path.GetDirectoryName(_outputFile), _cfg.TextureOutputFolder);
@@ -259,14 +288,14 @@ namespace MinecraftModelExporter
                 ResourcePack rs = new ResourcePack(_cfg.ResourcePack);
                 rs.Open();
 
-                foreach (KeyValuePair<ulong, DataSet> pair2 in datas)
+                foreach (KeyValuePair<KeyStruct, DataSet> pair2 in datas)
                 {
                     if (Block.Blocks[pair2.Value.BaseData.GetGlobalID()] != null)
                     {
                         Block b = Block.Blocks[pair2.Value.BaseData.GetGlobalID()];
                         BlockSide side = (BlockSide)pair2.Value.SideByte;
 
-                        string tex = b.GetTextureForSide(side, GetMetadata(pair2.Key));
+                        string tex = b.GetTextureForSide(side, pair2.Value.BaseData.Metadata);
 
                         if (!rs.SaveBlockTexture(tex, textureOutput))
                             failedTextures.Add(tex);
@@ -275,6 +304,9 @@ namespace MinecraftModelExporter
 
                 rs.Close();
             }
+
+            currentTotalTask++;
+            rep.SetTotalPercent((int)(((float)currentTotalTask / (float)maxTotalTask) * 100f));
 
             return true;
         }
@@ -697,7 +729,7 @@ namespace MinecraftModelExporter
             ds.normals.Add(normal);
         }
 
-        private void WriteRange(BlockRange range, Vector3 normal, float level, Vector3 addNormal, ref Dictionary<ulong, DataSet> datas)
+        private void WriteRange(BlockRange range, Vector3 normal, float level, Vector3 addNormal, ref Dictionary<KeyStruct, DataSet> datas)
         {
             BlockSide side = Block.GetSideFromNormal(normal);
             Block bl = Block.Blocks[range.Block.GetGlobalID()];
@@ -716,11 +748,21 @@ namespace MinecraftModelExporter
 
                 DataSet[] ds = new DataSet[ids.Length];
 
-                ulong key = GetKey(range.Block.ID, range.Block.Metadata, sideByte);
+                KeyStruct key = new KeyStruct(){
+                    ID = range.Block.ID,
+                    Metadata = range.Block.Metadata,
+                    SideByte = sideByte
+                };
 
                 for (int s = 0; s < ids.Length; s++)
                 {
-                    ulong k = GetKey(range.Block.ID, range.Block.Metadata, (byte)ids[s]);
+                    KeyStruct k = new KeyStruct()
+                    {
+                        ID = range.Block.ID,
+                        Metadata = range.Block.Metadata,
+                        SideByte = (byte)ids[s]
+                    };
+
                     if (datas.ContainsKey(k) && key != k)
                     {
                         ds[s] = datas[k];
@@ -754,7 +796,12 @@ namespace MinecraftModelExporter
 
             if (foundSet == null)
             {
-                ulong key = GetKey(range.Block.ID, range.Block.Metadata, sideByte);
+                KeyStruct key = new KeyStruct()
+                {
+                    ID = range.Block.ID,
+                    Metadata = range.Block.Metadata,
+                    SideByte = sideByte
+                };
 
                 if (!datas.ContainsKey(key))
                 {
@@ -773,7 +820,7 @@ namespace MinecraftModelExporter
             }
         }
 
-        private void WriteCustomData(CustomBlockData range, ref Dictionary<ulong, DataSet> datas)
+        private void WriteCustomData(CustomBlockData range, ref Dictionary<KeyStruct, DataSet> datas)
         {
             Vector3 normal = range.Normal;
 
@@ -794,11 +841,22 @@ namespace MinecraftModelExporter
 
                 DataSet[] ds = new DataSet[ids.Length];
 
-                ulong key = GetKey(range.Source.ID, range.Source.Metadata, sideByte);
+                KeyStruct key = new KeyStruct()
+                {
+                    ID = range.Source.ID,
+                    Metadata = range.Source.Metadata,
+                    SideByte = sideByte
+                };
 
                 for (int s = 0; s < ids.Length; s++)
                 {
-                    ulong k = GetKey(range.Source.ID, range.Source.Metadata, (byte)ids[s]);
+                    KeyStruct k = new KeyStruct()
+                    {
+                        ID = range.Source.ID,
+                        Metadata = range.Source.Metadata,
+                        SideByte = (byte)ids[s]
+                    };
+
                     if (datas.ContainsKey(k) && key != k)
                     {
                         ds[s] = datas[k];
@@ -815,7 +873,12 @@ namespace MinecraftModelExporter
 
             if (foundSet == null)
             {
-                ulong key = GetKey(range.Source.ID, range.Source.Metadata, sideByte);
+                KeyStruct key = new KeyStruct()
+                {
+                    ID = range.Source.ID,
+                    Metadata = range.Source.Metadata,
+                    SideByte = sideByte
+                };
 
                 if (!datas.ContainsKey(key))
                 {
@@ -864,55 +927,6 @@ namespace MinecraftModelExporter
             return w.ToArray();
         }
 
-        public ulong GetKey(uint ID, byte Metadata, byte bs)
-        {
-            byte[] idData = BitConverter.GetBytes(ID);
-
-            byte[] dat = new byte[] { idData[0], idData[1], idData[2], idData[3], Metadata, bs, 0, 0 };
-
-            if (!BitConverter.IsLittleEndian)
-                Array.Reverse(dat);
-
-            return BitConverter.ToUInt64(dat, 0);
-        }
-
-        public byte GetSideByte(ulong key)
-        {
-            byte[] bs = BitConverter.GetBytes(key);
-
-            if (BitConverter.IsLittleEndian)
-                return bs[2];
-
-            return bs[5];
-        }
-
-        public byte GetMetadata(ulong key)
-        {
-            byte[] bs = BitConverter.GetBytes(key);
-
-            if (BitConverter.IsLittleEndian)
-                return bs[3];
-
-            return bs[4];
-        }
-
-        public uint GetBlockKey(uint key)
-        {
-            byte[] bs = BitConverter.GetBytes(key);
-
-            uint id;
-
-            if (BitConverter.IsLittleEndian)
-            {
-                id = BitConverter.ToUInt32(new byte[] { bs[4], bs[5], bs[6], bs[7] }, 0);
-                return BlockData.GetGlobalID(id, bs[3]);
-            }
-
-            id = BitConverter.ToUInt32(new byte[] { bs[0], bs[1], bs[2], bs[3] }, 0);
-
-            return BlockData.GetGlobalID(id, bs[4]);
-        }
-
         public Vector3 ConvertToPos(PointF p, Vector3 normal, float level)
         {
             if (normal.X != 0 && normal.Y == 0 && normal.Z == 0)
@@ -941,5 +955,33 @@ namespace MinecraftModelExporter
         public List<Vector3> verts = new List<Vector3>();
         public List<Vector2> uvs = new List<Vector2>();
         public List<Vector3> normals = new List<Vector3>();
+    }
+
+    struct KeyStruct
+    {
+        public uint ID;
+        public byte Metadata;
+        public byte SideByte;
+
+        public override bool Equals(object obj)
+        {
+            if (obj is KeyStruct)
+            {
+                KeyStruct o = (KeyStruct)obj;
+
+                return (ID == o.ID && Metadata == o.Metadata && SideByte == o.SideByte);
+            }
+            return false;
+        }
+
+        public static bool operator ==(KeyStruct a, KeyStruct b)
+        {
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(KeyStruct a, KeyStruct b)
+        {
+            return !a.Equals(b);
+        }
     }
 }

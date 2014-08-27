@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.taskLabel = new System.Windows.Forms.Label();
             this.progress1 = new System.Windows.Forms.ProgressBar();
             this.cancelButton = new System.Windows.Forms.Button();
@@ -35,6 +36,7 @@
             this.progress2 = new System.Windows.Forms.ProgressBar();
             this.pLbl1 = new System.Windows.Forms.Label();
             this.pLbl2 = new System.Windows.Forms.Label();
+            this.uiTimer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // taskLabel
@@ -66,11 +68,8 @@
             // 
             // worker
             // 
-            this.worker.WorkerReportsProgress = true;
-            this.worker.WorkerSupportsCancellation = true;
-            this.worker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.worker_DoWork);
-            this.worker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.worker_ProgressChanged);
-            this.worker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.worker_RunWorkerCompleted);
+            this.worker.DoWork += new System.EventHandler(this.worker_DoWork);
+            this.worker.RunWorkerCompleted += new System.EventHandler(this.worker_RunWorkerCompleted);
             // 
             // progress2
             // 
@@ -99,6 +98,10 @@
             this.pLbl2.Text = "100%";
             this.pLbl2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // uiTimer
+            // 
+            this.uiTimer.Tick += new System.EventHandler(this.uiTimer_Tick);
+            // 
             // PartProgressTaskForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -116,6 +119,7 @@
             this.Name = "PartProgressTaskForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "TaskForm";
+            this.Shown += new System.EventHandler(this.PartProgressTaskForm_Shown);
             this.ResumeLayout(false);
 
         }
@@ -129,5 +133,6 @@
         private System.Windows.Forms.ProgressBar progress2;
         private System.Windows.Forms.Label pLbl1;
         private System.Windows.Forms.Label pLbl2;
+        private System.Windows.Forms.Timer uiTimer;
     }
 }

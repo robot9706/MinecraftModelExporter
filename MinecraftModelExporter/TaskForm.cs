@@ -34,9 +34,6 @@ namespace MinecraftModelExporter
             _arg = arg;
 
             _report = new TaskProgressReport(worker);
-            _report.Report(0, "");
-
-            worker.RunWorkerAsync();
         }
 
         private void cancel_Click(object sender, EventArgs e)
@@ -45,7 +42,7 @@ namespace MinecraftModelExporter
             Close();
         }
 
-        private void worker_DoWork(object sender, DoWorkEventArgs e)
+        private void worker_DoWork(object sender, EventArgs e)
         {
             try
             {
@@ -61,14 +58,7 @@ namespace MinecraftModelExporter
             }
         }
 
-        private void worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            taskLabel.Text = (string)e.UserState;
-            progressBar.Value = e.ProgressPercentage;
-            pLbl.Text = e.ProgressPercentage.ToString() + "%";
-        }
-
-        private void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        private void worker_RunWorkerCompleted(object sender, EventArgs e)
         {
             if (_ex != null)
             {
@@ -78,6 +68,22 @@ namespace MinecraftModelExporter
                     MessageBox.Show("Task failed!");
             }
             Close();
+        }
+
+        private void TaskForm_Shown(object sender, EventArgs e)
+        {
+            taskLabel.Text = "Starting..";
+            uiUpdate.Start();
+            worker.RunWorkerAsync();
+        }
+
+        private void uiUpdate_Tick(object sender, EventArgs a)
+        {
+            ProgressChangedEventArgs e = worker.CurrentProgress;
+
+            taskLabel.Text = (string)e.UserState;
+            progressBar.Value = e.ProgressPercentage;
+            pLbl.Text = e.ProgressPercentage.ToString() + "%";
         }
     }
 
