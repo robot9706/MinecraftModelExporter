@@ -48,7 +48,7 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
 
                 Normal = new Vector3(1, 0, 1),
                 Texture = Textures.GetTexturesForMetadata(metadata)[0]
-            }.CreateUVsYFliped());
+            }.CreateUVsYFlipped());
 
             dat.Add(new CustomBlockData()
             {
@@ -61,7 +61,7 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
 
                 Normal = new Vector3(-1, 0, -1),
                 Texture = Textures.GetTexturesForMetadata(metadata)[0]
-            }.CreateUVsYFliped());
+            }.CreateUVsYFlipped());
 
             dat.Add(new CustomBlockData()
             {
@@ -74,7 +74,7 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
 
                 Normal = new Vector3(-1, 0, 1),
                 Texture = Textures.GetTexturesForMetadata(metadata)[0]
-            }.CreateUVsYFliped());
+            }.CreateUVsYFlipped());
 
             dat.Add(new CustomBlockData()
             {
@@ -87,7 +87,7 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
 
                 Normal = new Vector3(1, 0, -1),
                 Texture = Textures.GetTexturesForMetadata(metadata)[0]
-            }.CreateUVsYFliped());
+            }.CreateUVsYFlipped());
 
             return dat;
         }

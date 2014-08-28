@@ -78,6 +78,7 @@
     <Compile Include="GeometryProcessor\Blocks\Bed.cs" />
     <Compile Include="GeometryProcessor\Blocks\Dispenser.cs" />
     <Compile Include="GeometryProcessor\Blocks\Dropper.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Fire.cs" />
     <Compile Include="GeometryProcessor\Blocks\Furnace.cs" />
     <Compile Include="GeometryProcessor\Blocks\FurnaceBurning.cs" />
     <Compile Include="GeometryProcessor\Blocks\Glass.cs" />
@@ -85,6 +86,7 @@
     <Compile Include="GeometryProcessor\Blocks\Ladder.cs" />
     <Compile Include="GeometryProcessor\Blocks\Leaves.cs" />
     <Compile Include="GeometryProcessor\Blocks\Liquid.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Torch.cs" />
     <Compile Include="GeometryProcessor\ExportConfig.cs" />
     <Compile Include="GeometryProcessor\MetadataSolidBlock.cs" />
     <Compile Include="GeometryProcessor\MetadataSolidTextureBlock.cs" />

@@ -91,7 +91,7 @@ namespace MinecraftModelExporter.GeometryProcessor
             AddBlock(new Dispenser(23));
             AddBlock(new Sandstone(24));
             AddBlock(new SolidBlock("Noteblock", 25, "noteblock"));
-            //AddBlock(new Bed(26)); //Removed: Bad metadata information
+            AddBlock(new Bed(26)); 
             AddBlock(new Rails(27));
             AddBlock(new Rails(28));
             AddBlock(new StickyPiston(29, "Sticky piston"));
@@ -115,8 +115,8 @@ namespace MinecraftModelExporter.GeometryProcessor
             AddBlock(new SolidBlock("Bookshelf", 47, new TextureMask().AddData("planks_oak", BlockTexture.Yneg | BlockTexture.Ypos).AddData("bookshelf", BlockTexture.Xneg | BlockTexture.Xpos | BlockTexture.Zneg | BlockTexture.Zpos).Textures));
             AddBlock(new SolidBlock("Mossy stone", 48, "cobblestone_mossy"));
             AddBlock(new SolidBlock("Obsidian", 49, "obsidian"));
-            //50: torch
-            //51: fire
+            AddBlock(new Torch(50));
+            AddBlock(new Fire(51));
             AddBlock(new SolidBlock("Monster spawner", 52, "mob_spawner"));
             AddBlock(new Stairs(53, "planks_oak"));
             //54: chest

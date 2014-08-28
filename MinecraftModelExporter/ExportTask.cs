@@ -193,7 +193,7 @@ namespace MinecraftModelExporter
             rep.SetTitle("Building geometry");
             rep.Report();
 
-            Dictionary<KeyStruct, DataSet> datas = new Dictionary<KeyStruct, DataSet>();
+            Dictionary<string, DataSet> datas = new Dictionary<string, DataSet>();
 
             int pairIndex = 0;
             foreach (KeyValuePair<Vector4, BlockRange[]> pair in ranges)
@@ -234,7 +234,7 @@ namespace MinecraftModelExporter
 
                 Vector3 min = new Vector3(0, 0, 0);
                 Vector3 max = new Vector3(0, 0, 0);
-                foreach (KeyValuePair<KeyStruct, DataSet> pair2 in datas)
+                foreach (KeyValuePair<string, DataSet> pair2 in datas)
                 {
                     foreach (Vector3 v in pair2.Value.verts)
                     {
@@ -249,7 +249,7 @@ namespace MinecraftModelExporter
                 }
 
                 Vector3 move = (max - min) / 2;
-                foreach (KeyValuePair<KeyStruct, DataSet> pair2 in datas)
+                foreach (KeyValuePair<string, DataSet> pair2 in datas)
                 {
                     for (int x = 0; x < pair2.Value.verts.Count; x++)
                     {
@@ -266,11 +266,7 @@ namespace MinecraftModelExporter
 
             ProcessedGeometryData geom = new ProcessedGeometryData();
             geom.ExportConfig = _cfg;
-
-            foreach (KeyValuePair<KeyStruct, DataSet> pair2 in datas)
-            {
-                geom.Data.Add(pair2.Value);
-            }
+            geom.Data = datas.Values.ToList();
 
             //Export model file
             _outputWriter.Write(_outputFile, geom);
@@ -288,18 +284,12 @@ namespace MinecraftModelExporter
                 ResourcePack rs = new ResourcePack(_cfg.ResourcePack);
                 rs.Open();
 
-                foreach (KeyValuePair<KeyStruct, DataSet> pair2 in datas)
+                foreach (KeyValuePair<string, DataSet> pair2 in datas)
                 {
-                    if (Block.Blocks[pair2.Value.BaseData.GetGlobalID()] != null)
-                    {
-                        Block b = Block.Blocks[pair2.Value.BaseData.GetGlobalID()];
-                        BlockSide side = (BlockSide)pair2.Value.SideByte;
+                    string tex = pair2.Value.Texture;
 
-                        string tex = b.GetTextureForSide(side, pair2.Value.BaseData.Metadata);
-
-                        if (!rs.SaveBlockTexture(tex, textureOutput))
-                            failedTextures.Add(tex);
-                    }
+                    if (!rs.SaveBlockTexture(tex, textureOutput))
+                        failedTextures.Add(tex);
                 }
 
                 rs.Close();
@@ -729,53 +719,70 @@ namespace MinecraftModelExporter
             ds.normals.Add(normal);
         }
 
-        private void WriteRange(BlockRange range, Vector3 normal, float level, Vector3 addNormal, ref Dictionary<KeyStruct, DataSet> datas)
+        private void WriteRange(BlockRange range, Vector3 normal, float level, Vector3 addNormal, ref Dictionary<string, DataSet> datas)
         {
+            DataSet foundSet = null;
+
             BlockSide side = Block.GetSideFromNormal(normal);
             Block bl = Block.Blocks[range.Block.GetGlobalID()];
-            byte sideByte = 6;
-            DataSet foundSet = null;
-            sideByte = (byte)Block.GetSideInt(side);
-            if (bl.UsesOneTexture)
-            {
-                side = BlockSide.AllSame;
-                sideByte = (byte)Block.GetSideInt(side);
-            }
+            string tex = bl.GetTextureForSide(side, range.Block.Metadata);
+
+            if (datas.ContainsKey(tex))
+                foundSet = datas[tex];
             else
             {
-                string tex = bl.GetTextureForSide(side, range.Block.Metadata);
-                int[] ids = Find(bl.GetTextures(range.Block.Metadata), tex);
+                foundSet = new DataSet();
+                foundSet.BaseData = range.Block;
+                foundSet.Texture = tex;
 
-                DataSet[] ds = new DataSet[ids.Length];
-
-                KeyStruct key = new KeyStruct(){
-                    ID = range.Block.ID,
-                    Metadata = range.Block.Metadata,
-                    SideByte = sideByte
-                };
-
-                for (int s = 0; s < ids.Length; s++)
-                {
-                    KeyStruct k = new KeyStruct()
-                    {
-                        ID = range.Block.ID,
-                        Metadata = range.Block.Metadata,
-                        SideByte = (byte)ids[s]
-                    };
-
-                    if (datas.ContainsKey(k) && key != k)
-                    {
-                        ds[s] = datas[k];
-                    }
-                }
-
-                for (int e = 0; e < ds.Length; e++)
-                    if (ds[e] != null)
-                    {
-                        foundSet = ds[e];
-                        break;
-                    }
+                datas.Add(tex, foundSet);
             }
+
+            //BlockSide side = Block.GetSideFromNormal(normal);
+            //Block bl = Block.Blocks[range.Block.GetGlobalID()];
+            //byte sideByte = 6;
+            //DataSet foundSet = null;
+            //sideByte = (byte)Block.GetSideInt(side);
+            //if (bl.UsesOneTexture)
+            //{
+            //    side = BlockSide.AllSame;
+            //    sideByte = (byte)Block.GetSideInt(side);
+            //}
+            //else
+            //{
+            //    string tex = bl.GetTextureForSide(side, range.Block.Metadata);
+            //    int[] ids = Find(bl.GetTextures(range.Block.Metadata), tex);
+
+            //    DataSet[] ds = new DataSet[ids.Length];
+
+            //    KeyStruct key = new KeyStruct(){
+            //        ID = range.Block.ID,
+            //        Metadata = range.Block.Metadata,
+            //        SideByte = sideByte
+            //    };
+
+            //    for (int s = 0; s < ids.Length; s++)
+            //    {
+            //        KeyStruct k = new KeyStruct()
+            //        {
+            //            ID = range.Block.ID,
+            //            Metadata = range.Block.Metadata,
+            //            SideByte = (byte)ids[s]
+            //        };
+
+            //        if (datas.ContainsKey(k) && key != k)
+            //        {
+            //            ds[s] = datas[k];
+            //        }
+            //    }
+
+            //    for (int e = 0; e < ds.Length; e++)
+            //        if (ds[e] != null)
+            //        {
+            //            foundSet = ds[e];
+            //            break;
+            //        }
+            //}
 
             PointF ch = new PointF((range.To.X - range.From.X) + 1, (range.To.Y - range.From.Y) + 1);
 
@@ -796,22 +803,22 @@ namespace MinecraftModelExporter
 
             if (foundSet == null)
             {
-                KeyStruct key = new KeyStruct()
-                {
-                    ID = range.Block.ID,
-                    Metadata = range.Block.Metadata,
-                    SideByte = sideByte
-                };
+                //KeyStruct key = new KeyStruct()
+                //{
+                //    ID = range.Block.ID,
+                //    Metadata = range.Block.Metadata,
+                //    SideByte = sideByte
+                //};
 
-                if (!datas.ContainsKey(key))
-                {
-                    datas.Add(key, new DataSet());
-                    datas[key].BaseData = range.Block;
-                    datas[key].SideByte = sideByte;
-                }
+                //if (!datas.ContainsKey(key))
+                //{
+                //    datas.Add(key, new DataSet());
+                //    datas[key].BaseData = range.Block;
+                //    datas[key].SideByte = sideByte;
+                //}
 
-                WriteTriangle(datas[key], t3d1, t3d2, t3d3, uv1, uv2, uv3, normal);
-                WriteTriangle(datas[key], t3d3, t3d4, t3d1, uv3, uv4, uv1, normal);
+                //WriteTriangle(datas[key], t3d1, t3d2, t3d3, uv1, uv2, uv3, normal);
+                //WriteTriangle(datas[key], t3d3, t3d4, t3d1, uv3, uv4, uv1, normal);
             }
             else
             {
@@ -820,79 +827,92 @@ namespace MinecraftModelExporter
             }
         }
 
-        private void WriteCustomData(CustomBlockData range, ref Dictionary<KeyStruct, DataSet> datas)
+        private void WriteCustomData(CustomBlockData range, ref Dictionary<string, DataSet> datas)
         {
-            Vector3 normal = range.Normal;
-
-            BlockSide side = Block.GetSideFromNormal(normal);
-            Block bl = Block.Blocks[range.Source.GetGlobalID()];
-            byte sideByte = 6;
             DataSet foundSet = null;
-            sideByte = (byte)Block.GetSideInt(side);
-            if (bl.UsesOneTexture)
-            {
-                side = BlockSide.AllSame;
-                sideByte = (byte)Block.GetSideInt(side);
-            }
+
+            if (datas.ContainsKey(range.Texture))
+                foundSet = datas[range.Texture];
             else
             {
-                string tex = range.Texture;//bl.GetTextureForSide(side, range.Source.Metadata);
-                int[] ids = Find(bl.GetTextures(range.Source.Metadata), tex);
+                foundSet = new DataSet();
+                foundSet.BaseData = range.Source;
+                foundSet.Texture = range.Texture;
 
-                DataSet[] ds = new DataSet[ids.Length];
-
-                KeyStruct key = new KeyStruct()
-                {
-                    ID = range.Source.ID,
-                    Metadata = range.Source.Metadata,
-                    SideByte = sideByte
-                };
-
-                for (int s = 0; s < ids.Length; s++)
-                {
-                    KeyStruct k = new KeyStruct()
-                    {
-                        ID = range.Source.ID,
-                        Metadata = range.Source.Metadata,
-                        SideByte = (byte)ids[s]
-                    };
-
-                    if (datas.ContainsKey(k) && key != k)
-                    {
-                        ds[s] = datas[k];
-                    }
-                }
-
-                for (int e = 0; e < ds.Length; e++)
-                    if (ds[e] != null)
-                    {
-                        foundSet = ds[e];
-                        break;
-                    }
+                datas.Add(range.Texture, foundSet);
             }
 
-            if (foundSet == null)
-            {
-                KeyStruct key = new KeyStruct()
-                {
-                    ID = range.Source.ID,
-                    Metadata = range.Source.Metadata,
-                    SideByte = sideByte
-                };
+            Vector3 normal = range.Normal;
 
-                if (!datas.ContainsKey(key))
-                {
-                    datas.Add(key, new DataSet());
-                    datas[key].BaseData = range.Source;
-                    datas[key].SideByte = sideByte;
+            //BlockSide side = Block.GetSideFromNormal(normal);
+            //Block bl = Block.Blocks[range.Source.GetGlobalID()];
+            //byte sideByte = 6;
+            //DataSet foundSet = null;
+            //sideByte = (byte)Block.GetSideInt(side);
+            //if (bl.UsesOneTexture)
+            //{
+            //    side = BlockSide.AllSame;
+            //    sideByte = (byte)Block.GetSideInt(side);
+            //}
+            //else
+            //{
+            //    string tex = range.Texture;//bl.GetTextureForSide(side, range.Source.Metadata);
+            //    int[] ids = Find(bl.GetTextures(range.Source.Metadata), tex);
 
-                    foundSet = datas[key];
-                }
-                else
-                {
-                    foundSet = datas[key];
-                }
-            }
+            //    DataSet[] ds = new DataSet[ids.Length];
+
+            //    KeyStruct key = new KeyStruct()
+            //    {
+            //        ID = range.Source.ID,
+            //        Metadata = range.Source.Metadata,
+            //        SideByte = sideByte,
+            //    };
+
+            //    for (int s = 0; s < ids.Length; s++)
+            //    {
+            //        KeyStruct k = new KeyStruct()
+            //        {
+            //            ID = range.Source.ID,
+            //            Metadata = range.Source.Metadata,
+            //            SideByte = (byte)ids[s]
+            //        };
+
+            //        if (datas.ContainsKey(k) && key != k)
+            //        {
+            //            ds[s] = datas[k];
+            //        }
+            //    }
+
+            //    for (int e = 0; e < ds.Length; e++)
+            //        if (ds[e] != null)
+            //        {
+            //            foundSet = ds[e];
+            //            break;
+            //        }
+            //}
+
+            //if (foundSet == null)
+            //{
+            //    KeyStruct key = new KeyStruct()
+            //    {
+            //        ID = range.Source.ID,
+            //        Metadata = range.Source.Metadata,
+            //        SideByte = sideByte
+            //    };
+
+            //    if (!datas.ContainsKey(key))
+            //    {
+            //        datas.Add(key, new DataSet());
+            //        datas[key].BaseData = range.Source;
+            //        datas[key].SideByte = sideByte;
+
+            //        foundSet = datas[key];
+            //    }
+            //    else
+            //    {
+            //        foundSet = datas[key];
+            //    }
+            //}
 
             //tri1: 1,2,3
             //tri2: 3,4,1
@@ -950,38 +970,10 @@ namespace MinecraftModelExporter
     public class DataSet
     {
         public BlockData BaseData;
-        public byte SideByte;
+        public string Texture;
 
         public List<Vector3> verts = new List<Vector3>();
         public List<Vector2> uvs = new List<Vector2>();
         public List<Vector3> normals = new List<Vector3>();
-    }
-
-    struct KeyStruct
-    {
-        public uint ID;
-        public byte Metadata;
-        public byte SideByte;
-
-        public override bool Equals(object obj)
-        {
-            if (obj is KeyStruct)
-            {
-                KeyStruct o = (KeyStruct)obj;
-
-                return (ID == o.ID && Metadata == o.Metadata && SideByte == o.SideByte);
-            }
-            return false;
-        }
-
-        public static bool operator ==(KeyStruct a, KeyStruct b)
-        {
-            return a.Equals(b);
-        }
-
-        public static bool operator !=(KeyStruct a, KeyStruct b)
-        {
-            return !a.Equals(b);
-        }
     }
 }

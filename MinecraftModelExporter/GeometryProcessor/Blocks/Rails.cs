@@ -167,7 +167,7 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
                     Texture = GetTextureForSide(BlockSide.Ypos, metadata),
 
                     Normal = new Vector3(0, 1, 0)
-                }.CreateUVsYFliped());
+                }.CreateUVsYFlipped());
             }
             if (metadata == 8)
             {

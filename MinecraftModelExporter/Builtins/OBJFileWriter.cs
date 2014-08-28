@@ -26,101 +26,68 @@ namespace MinecraftModelExporter.Builtins
 
             foreach (DataSet set in data.Data)
             {
-                Block block = Block.Blocks[set.BaseData.GetGlobalID()];
-                if (block != null)
+                sw.WriteLine("o " + set.Texture); //Material name
+                sw.WriteLine("usemtl " + set.Texture + "_mat");
+
+                sw.WriteLine(" ");
+                sw.WriteLine("#Vertices");
+                for (int v = 0; v < set.verts.Count; v++)
                 {
-                    BlockTexture side = BlockTexture.AllSame;
-                    switch (set.SideByte)
-                    {
-                        case 0:
-                            side = BlockTexture.Xpos;
-                            break;
-                        case 1:
-                            side = BlockTexture.Xneg;
-                            break;
+                    sw.WriteLine("v " + set.verts[v].RawToString());
+                    tr++;
+                }
 
-                        case 2:
-                            side = BlockTexture.Ypos;
-                            break;
-                        case 3:
-                            side = BlockTexture.Yneg;
-                            break;
-
-                        case 4:
-                            side = BlockTexture.Zpos;
-                            break;
-                        case 5:
-                            side = BlockTexture.Zneg;
-                            break;
-                    }
-
-                    sw.WriteLine("o " + block.Name + "_" + side.ToString()); //Material name
-                    sw.WriteLine("usemtl " + block.Name + "_" + side.ToString() + "_mat");
-
+                if (data.ExportConfig.ExportUVs)
+                {
                     sw.WriteLine(" ");
-                    sw.WriteLine("#Vertices");
-                    for (int v = 0; v < set.verts.Count; v++)
+                    sw.WriteLine("#UVs");
+                    for (int t = 0; t < set.uvs.Count; t++)
                     {
-                        sw.WriteLine("v " + set.verts[v].RawToString());
-                        tr++;
+                        sw.WriteLine("vt " + set.uvs[t].RawToString());
                     }
+                }
 
-                    if (data.ExportConfig.ExportUVs)
-                    {
-                        sw.WriteLine(" ");
-                        sw.WriteLine("#UVs");
-                        for (int t = 0; t < set.uvs.Count; t++)
-                        {
-                            sw.WriteLine("vt " + set.uvs[t].RawToString());
-                        }
-                    }
-
-                    if (data.ExportConfig.ExportNormals)
-                    {
-                        sw.WriteLine(" ");
-                        sw.WriteLine("#Normals");
-                        for (int n = 0; n < set.normals.Count; n++)
-                        {
-                            sw.WriteLine("vn " + set.normals[n].RawToString());
-                        }
-                    }
-
+                if (data.ExportConfig.ExportNormals)
+                {
                     sw.WriteLine(" ");
-                    sw.WriteLine("#Faces");
-
-                    BlockSide ssd = (BlockSide)Enum.Parse(typeof(BlockSide), side.ToString());
-
-                    string tex = block.GetTextureForSide(ssd, set.BaseData.Metadata);
-
-                    sw.WriteLine("g " + tex); //Material name
-                    sw.WriteLine("s 1");
-                    for (int f = svt; f < tr; f += 3)
+                    sw.WriteLine("#Normals");
+                    for (int n = 0; n < set.normals.Count; n++)
                     {
-                        int ind = f + 1;
-                        int ind2 = f + 2;
-                        int ind3 = f + 3;
+                        sw.WriteLine("vn " + set.normals[n].RawToString());
+                    }
+                }
 
-                        Vector3 normal = set.normals[f - svt];
-                        if (normal.X > 0 || normal.Y > 0 || normal.Z < 0)
-                        {
-                            ind = f + 1;
-                            ind2 = f + 3;
-                            ind3 = f + 2;
-                        }
+                sw.WriteLine(" ");
+                sw.WriteLine("#Faces");
 
-                        sw.WriteLine("f " + ind.ToString() + "/" + ind.ToString() + "/" + ind.ToString() + " " +
-                            ind2.ToString() + "/" + ind2.ToString() + "/" + ind2.ToString() + " " +
-                            ind3.ToString() + "/" + ind3.ToString() + "/" + ind3.ToString());
+                sw.WriteLine("g " + set.Texture); //Material name
+                sw.WriteLine("s 1");
+                for (int f = svt; f < tr; f += 3)
+                {
+                    int ind = f + 1;
+                    int ind2 = f + 2;
+                    int ind3 = f + 3;
+
+                    Vector3 normal = set.normals[f - svt];
+                    if (normal.X > 0 || normal.Y > 0 || normal.Z < 0)
+                    {
+                        ind = f + 1;
+                        ind2 = f + 3;
+                        ind3 = f + 2;
                     }
 
-                    sw.WriteLine(" ");
+                    sw.WriteLine("f " + ind.ToString() + "/" + ind.ToString() + "/" + ind.ToString() + " " +
+                        ind2.ToString() + "/" + ind2.ToString() + "/" + ind2.ToString() + " " +
+                        ind3.ToString() + "/" + ind3.ToString() + "/" + ind3.ToString());
+                }
 
-                    svt = tr;
+                sw.WriteLine(" ");
 
-                    if (data.ExportConfig.ExportMaterials)
-                    {
-                        WriteMTLEntry(mtlSw, block.Name + "_" + side.ToString() + "_mat", tex + ".png");
-                    }
+                svt = tr;
+
+                if (data.ExportConfig.ExportMaterials)
+                {
+                    WriteMTLEntry(mtlSw, set.Texture + "_mat", set.Texture + ".png");
                 }
             }
 

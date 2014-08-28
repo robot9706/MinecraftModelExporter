@@ -86,5 +86,20 @@ namespace MinecraftModelExporter
         {
             return new Vector2(a.X / b, a.Y / b);
         }
+
+        public static Vector2 RotateAround(Vector2 point2D, Vector2 origin, float degrees)
+        {
+            float angleInRadians = degrees * ((float)Math.PI / 180f);
+            float cosTheta = (float)Math.Cos(angleInRadians);
+            float sinTheta = (float)Math.Sin(angleInRadians);
+            Vector2 r = new Vector2((cosTheta * (point2D.X - origin.X) - sinTheta * (point2D.Y - origin.Y) + origin.X),
+                (sinTheta * (point2D.X - origin.X) + cosTheta * (point2D.Y - origin.Y) + origin.Y)
+            );
+
+            r.X = (float)Math.Round(r.X, 4);
+            r.Y = (float)Math.Round(r.Y, 4);
+
+            return r;
+        }
     }
 }
