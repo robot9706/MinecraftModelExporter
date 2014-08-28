@@ -150,7 +150,7 @@ namespace MinecraftModelExporter.GeometryProcessor
             AddBlock(new SolidBlock("Clay", 82, "clay"));
             //83: sugar cannes
             AddBlock(new SolidBlock("Jukebox", 84, new TextureMask().AddData("jukebox_side", BlockTexture.Xneg | BlockTexture.Xpos | BlockTexture.Yneg | BlockTexture.Zneg | BlockTexture.Zpos).AddData("jukebox_top", BlockTexture.Ypos).Textures));
-            //85: oak fence
+            AddBlock(new Fence(85));
             AddBlock(new Pumpkin(86));
             AddBlock(new SolidBlock("Netherrack", 87, "netherrack"));
             AddBlock(new SolidBlock("Soul sand", 88, "soul_sand"));

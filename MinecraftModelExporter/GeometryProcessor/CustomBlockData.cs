@@ -202,14 +202,14 @@ namespace MinecraftModelExporter.GeometryProcessor
                 {
                     if (uvs[x].X > xMaxA)
                         xMaxA = uvs[x].X;
-                    else if (uvs[x].X < xMinA)
+                    if (uvs[x].X < xMinA)
                         xMinA = uvs[x].X;
                 }
                 else if (uvs[x].Y == yMax)
                 {
                     if (uvs[x].X > xMaxB)
                         xMaxB = uvs[x].X;
-                    else if (uvs[x].X < xMinB)
+                    if (uvs[x].X < xMinB)
                         xMinB = uvs[x].X;
                 }
             }
@@ -229,6 +229,64 @@ namespace MinecraftModelExporter.GeometryProcessor
                         uvs[x].X = xMaxB;
                     else if (uvs[x].X == xMaxB)
                         uvs[x].X = xMinB;
+                }
+            }
+
+            return this;
+        }
+
+        public CustomBlockData FlipUVsY()
+        {
+            Vector2[] uvs = new Vector2[] { UV1, UV2, UV3, UV4 };
+
+            float xMin = float.MaxValue;
+            float xMax = 0;
+
+            for (int x = 0; x < uvs.Length; x++)
+            {
+                if (uvs[x].X > xMax)
+                    xMax = uvs[x].X;
+                else if (uvs[x].X < xMin)
+                    xMin = uvs[x].X;
+            }
+
+            float yMinA = float.MaxValue;
+            float yMaxA = 0;
+            float yMinB = float.MaxValue;
+            float yMaxB = 0;
+            for (int x = 0; x < uvs.Length; x++)
+            {
+                if (uvs[x].X == xMin)
+                {
+                    if (uvs[x].Y > yMaxA)
+                        yMaxA = uvs[x].Y;
+                    if (uvs[x].Y < yMinA)
+                        yMinA = uvs[x].Y;
+                }
+                else if (uvs[x].X == xMax)
+                {
+                    if (uvs[x].Y > yMaxB)
+                        yMaxB = uvs[x].Y;
+                    if (uvs[x].Y < yMinB)
+                        yMinB = uvs[x].Y;
+                }
+            }
+
+            for (int x = 0; x < uvs.Length; x++)
+            {
+                if (uvs[x].X == xMin)
+                {
+                    if (uvs[x].Y == yMinA)
+                        uvs[x].Y = yMaxA;
+                    else if (uvs[x].Y == yMaxA)
+                        uvs[x].Y = yMinA;
+                }
+                else if (uvs[x].X == xMax)
+                {
+                    if (uvs[x].Y == yMinB)
+                        uvs[x].Y = yMaxB;
+                    else if (uvs[x].Y == yMaxB)
+                        uvs[x].Y = yMinB;
                 }
             }
 

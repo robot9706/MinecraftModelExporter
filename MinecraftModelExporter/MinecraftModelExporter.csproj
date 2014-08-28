@@ -24,7 +24,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -78,6 +78,7 @@
     <Compile Include="GeometryProcessor\Blocks\Bed.cs" />
     <Compile Include="GeometryProcessor\Blocks\Dispenser.cs" />
     <Compile Include="GeometryProcessor\Blocks\Dropper.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Fence.cs" />
     <Compile Include="GeometryProcessor\Blocks\Fire.cs" />
     <Compile Include="GeometryProcessor\Blocks\Furnace.cs" />
     <Compile Include="GeometryProcessor\Blocks\FurnaceBurning.cs" />
