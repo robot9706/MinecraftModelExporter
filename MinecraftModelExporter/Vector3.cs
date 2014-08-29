@@ -19,6 +19,13 @@ namespace MinecraftModelExporter
             Z = z;
         }
 
+        public static Vector3 TransformNormal(Vector3 normal, Matrix matrix)
+        {
+            return new Vector3((normal.X * matrix.M11) + (normal.Y * matrix.M21) + (normal.Z * matrix.M31),
+                                 (normal.X * matrix.M12) + (normal.Y * matrix.M22) + (normal.Z * matrix.M32),
+                                 (normal.X * matrix.M13) + (normal.Y * matrix.M23) + (normal.Z * matrix.M33));
+        }
+
         public Point3 ToPoint3Normal()
         {
             return new Point3((X > 0 ? 1 : (X < 0 ? -1 : 0)), (Y > 0 ? 1 : (Y < 0 ? -1 : 0)), (Z > 0 ? 1 : (Z < 0 ? -1 : 0)));

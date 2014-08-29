@@ -112,6 +112,7 @@
     <Compile Include="GeometryProcessor\CustomBlockData.cs" />
     <Compile Include="GeometryProcessor\SolidBlock.cs" />
     <Compile Include="GeometryProcessor\TextureBuilder.cs" />
+    <Compile Include="Matrix.cs" />
     <Compile Include="PartProgressTaskForm.cs">
       <SubType>Form</SubType>
     </Compile>

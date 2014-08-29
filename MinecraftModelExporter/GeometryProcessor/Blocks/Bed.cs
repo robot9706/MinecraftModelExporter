@@ -40,6 +40,14 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
 
         public override List<CustomBlockData> GenerateModel(byte metadata, BlockData me, BlockData Xpos, BlockData Xneg, BlockData Ypos, BlockData Yneg, BlockData Zpos, BlockData Zneg, BlockSource source, Point3 blockPosition)
         {
+            Dictionary<Vector3, BlockData> sideData = new Dictionary<Vector3, BlockData>();
+            sideData.Add(new Vector3(-1, 0, 0), Xneg);
+            sideData.Add(new Vector3(1, 0, 0), Xpos);
+            sideData.Add(new Vector3(0, 1, 0), Ypos);
+            sideData.Add(new Vector3(0, -1, 0), Yneg);
+            sideData.Add(new Vector3(0, 0, 1), Zpos);
+            sideData.Add(new Vector3(0, 0, -1), Zneg);
+
             List<CustomBlockData> d = new List<CustomBlockData>();
 
             bool head = ((metadata & 8) != 0);
@@ -102,17 +110,20 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
                 //end
                 Vector3[] endVerts = BuildBasedOnNormal(bedDir, height);
 
-                d.Add(new CustomBlockData()
+                if (!sideData[bedDir].IsSolid)
                 {
-                    Vertex1 = endVerts[3],
-                    Vertex2 = endVerts[2],
-                    Vertex3 = endVerts[1],
-                    Vertex4 = endVerts[0],
+                    d.Add(new CustomBlockData()
+                    {
+                        Vertex1 = endVerts[3],
+                        Vertex2 = endVerts[2],
+                        Vertex3 = endVerts[1],
+                        Vertex4 = endVerts[0],
 
-                    Normal = bedDir,
+                        Normal = bedDir,
 
-                    Texture = "bed_head_end",
-                }.CreateUVs(0, 0, height, 1).RotateUVs(90));
+                        Texture = "bed_head_end",
+                    }.CreateUVs(0, 0, height, 1).RotateUVs(90));
+                }
 
                 //sides
                 Vector3 sideNormalA;
@@ -161,8 +172,14 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
                     sideB = sideB.FlipUVsX();
                 }
 
-                d.Add(sideA);
-                d.Add(sideB);
+                if (!sideData[sideNormalA].IsSolid)
+                {
+                    d.Add(sideA);
+                }
+                if (!sideData[sideNormalB].IsSolid)
+                {
+                    d.Add(sideB);
+                }
             }
             //feet
             else
@@ -170,17 +187,20 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
                 //end
                 Vector3[] endVerts = BuildBasedOnNormal(-bedDir, height);
 
-                d.Add(new CustomBlockData()
+                if (!sideData[-bedDir].IsSolid)
                 {
-                    Vertex1 = endVerts[3],
-                    Vertex2 = endVerts[2],
-                    Vertex3 = endVerts[1],
-                    Vertex4 = endVerts[0],
+                    d.Add(new CustomBlockData()
+                    {
+                        Vertex1 = endVerts[3],
+                        Vertex2 = endVerts[2],
+                        Vertex3 = endVerts[1],
+                        Vertex4 = endVerts[0],
 
-                    Normal = -bedDir,
+                        Normal = -bedDir,
 
-                    Texture = "bed_feet_end",
-                }.CreateUVs(0, 0, height, 1).RotateUVs(90));
+                        Texture = "bed_feet_end",
+                    }.CreateUVs(0, 0, height, 1).RotateUVs(90));
+                }
 
                 //sides
                 Vector3 sideNormalA;
@@ -229,8 +249,14 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
                     sideB = sideB.FlipUVsX();
                 }
 
-                d.Add(sideA);
-                d.Add(sideB);
+                if (!sideData[sideNormalA].IsSolid)
+                {
+                    d.Add(sideA);
+                }
+                if (!sideData[sideNormalB].IsSolid)
+                {
+                    d.Add(sideB);
+                }
             }
 
             return d;
