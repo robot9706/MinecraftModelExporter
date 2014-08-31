@@ -3,6 +3,8 @@ MinecraftModelExporter
 
 A simple tool for converting Minecraft worlds into models.
 
+Download ModelExporter.zip or MinecraftModelExporter\bin\Release\MinecraftModelExporter.exe|ICSharpCode.SharpZipLib.dll|NamedBinaryTag.dll|gpc.dll to run. 
+
 The main reason why I started to work on this is a special feature.
 This tool can optimize models, so instead of just exporting all the block faces, it connects them, so the model will contain less triangles.
 
