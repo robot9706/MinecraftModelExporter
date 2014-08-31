@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MinecraftModelExporter.GeomGenerator;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace MinecraftModelExporter.GeometryProcessor.Blocks
 {
-    //east: -x
-    //west: +x
+    //east: +x
+    //west: -x
     //south: +z
     //north: -z
 
@@ -67,535 +68,262 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
             return true;
         }
 
-        private Vector3 RotY(Vector3 a, float y)
+        private Vector3 MetaToDirection(byte meta)
         {
-            return RotY(a, new Vector3(0, 0, 0), y);
-        }
-
-        private Vector3 RotY(Vector3 a, Vector3 c, float y)
-        {
-            Vector2 p = new Vector2(a.X, a.Z);
-            Vector2 n = Vector2.RotateAround(p, new Vector2(c.X, c.Z), y);
-
-            return new Vector3(n.X, a.Y, n.Y);
-        }
-
-        private bool Check(byte a, byte b)
-        {
-            int ia = (int)a;
-            int ib = (int)b;
-
-            if (ia == ib)
-                return true;
-
-            ia = (ia + 1) % 4;
-            if (ia == ib)
-                return true;
-
-            ia = (ia - 2);
-            if (ia < 0)
-                ia = 4 - ia;
-
-            return (ia == ib);
-        }
-
-        private Vector3 MetaToDir(byte meta)
-        {
-            switch (meta)
-            {
-                case 0:
-                    return new Vector3(-1, 0, 0);
-                case 1:
+            switch (meta) //Inverted values, because we need descending directions
+            { 
+                case 0: //East
+                    return new Vector3(-1,0,0);
+                case 1: //West
                     return new Vector3(1, 0, 0);
-                case 2:
+
+                case 2: //South
                     return new Vector3(0, 0, -1);
-                case 3:
+                case 3: //North
                     return new Vector3(0, 0, 1);
             }
 
             return new Vector3(0, 0, 0);
         }
 
+        private bool IsLeft(byte from, byte to)
+        {
+            if (from == 0 && to == 3)
+                return true;
+            if (from == 0 && to == 2)
+                return true;
+
+            if (from == 1 && to == 2)
+                return true;
+            if (from == 1 && to == 3)
+                return true;
+
+            if (from == 2 && to == 0)
+                return true;
+            if (from == 2 && to == 1)
+                return true;
+
+            if (from == 3 && to == 1)
+                return true;
+            if (from == 3 && to == 0)
+                return true;
+
+            //Vector3 a = MetaToDirection(from);
+            //Vector3 b = MetaToDirection(to);
+
+            //a = Vector3.TransformNormal(a, Matrix.CreateRotationY(-(float)Math.PI / 2));
+            //a.X = (float)Math.Round(a.X, 4);
+            //a.Z = (float)Math.Round(a.Z, 4);
+
+            //return (a == b);
+
+            return false;
+        }
+
+        private int CheckLittleCorner(BlockData me, BlockData backBlock, BlockData leftBlock, BlockData rightBlock, byte direction)
+        {
+            if (IsStairs(backBlock.ID))
+            {
+                bool leftOk = (IsStairs(leftBlock.ID) && (leftBlock.Metadata == me.Metadata || IsLeft(me.Metadata, leftBlock.Metadata)));
+                bool rightOk = (IsStairs(rightBlock.ID) && (rightBlock.Metadata == me.Metadata || IsLeft(me.Metadata, rightBlock.Metadata)));
+
+                if (leftOk && rightOk)
+                {
+                    if (leftBlock.Metadata == me.Metadata && rightBlock.Metadata != me.Metadata)
+                        rightOk = false;
+                    else if (leftBlock.Metadata != me.Metadata && rightBlock.Metadata == me.Metadata)
+                        leftOk = false;
+                }
+
+                if ((leftOk && !rightOk) || (!leftOk && rightOk))
+                {
+                    switch (direction)
+                    {
+                        case 0:
+                            if (leftOk)
+                                return 0; //2
+                            else
+                                return 3; //1
+                            break;
+
+                        case 1:
+                            if (leftOk)
+                                return 2; //0
+                            else
+                                return 1; //3
+                            break;
+
+                        case 2:
+                            if (leftOk)
+                                return 3; //1
+                            else
+                                return 2; //0
+                            break;
+
+                        case 3:
+                            if (leftOk)
+                                return 1; //3
+                            else
+                                return 0; //2
+                            break;
+                    }
+                }
+            }
+
+            return -1;
+        }
+
         public override List<CustomBlockData> GenerateModel(byte metadata, BlockData me, BlockData Xpos, BlockData Xneg, BlockData Ypos, BlockData Yneg, BlockData Zpos, BlockData Zneg, BlockSource source, Point3 blockPosition)
         {
-            List<CustomBlockData> l = new List<CustomBlockData>();
-
-            CustomBlockData front1 = null;
-            CustomBlockData front2 = null;
-
-            CustomBlockData back = null;
-            CustomBlockData cornerBack = null;
-
-            CustomBlockData sidepa = null;
-            CustomBlockData sidena = null;
-
-            CustomBlockData sidepb = null;
-            CustomBlockData sidenb = null;
-
-            CustomBlockData connectPart = null;
-
-            #region Convert metadata to actual info 
-            byte direction = GetType(metadata);
             bool upsideDown = IsUpsideDown(metadata);
 
-            Vector3 descendingDir = new Vector3(0,0,0);
-            float degDirection = 0;
-            switch (direction)
-            { 
-                case 0:
-                    descendingDir = new Vector3(-1, 0, 0);
-                    degDirection = 0;
-                    break;
-                case 1:
-                    descendingDir = new Vector3(1, 0, 0);
-                    degDirection = 180;
-                    break;
-                case 2:
-                    descendingDir = new Vector3(0, 0, -1);
-                    degDirection = 270;
-                    break;
-                case 3:
-                    descendingDir = new Vector3(0, 0, 1);
-                    degDirection = 90;
-                    break;
-            }
-            #endregion
+            List<BoundingBox> boxesToExport = new List<BoundingBox>();
 
-            #region Face culling
-            Vector3 frontDir = descendingDir;
-            Vector3 backDir = -descendingDir;
-            Vector3 leftDir = RotY(descendingDir, 90);
-            Vector3 rightDir = RotY(descendingDir, -90);
-            Vector3 upDir = new Vector3(0, (upsideDown ? -1 : 1), 0);
-            Vector3 downDir = -upDir;
+            byte direction = GetType(metadata);
 
-            BlockData frontBlock = source.GetData(blockPosition + frontDir.ToPoint3());
-            BlockData backBlock = source.GetData(blockPosition + backDir.ToPoint3());
-            BlockData leftBlock = source.GetData(blockPosition + leftDir.ToPoint3());
-            BlockData rightBlock = source.GetData(blockPosition + rightDir.ToPoint3());
-            BlockData topBlock = source.GetData(blockPosition + upDir.ToPoint3());
-            BlockData downBlock = source.GetData(blockPosition + downDir.ToPoint3());
+            float bottomBasePos = (upsideDown ? 0.5f : 0f);
+            float topBasePos = (upsideDown ? 0f : 0.5f);
 
-            bool leftStairs = false;
-            bool rightStairs = false;
+            boxesToExport.Add(new BoundingBox(new Vector3(0, bottomBasePos, 0), new Vector3(1, bottomBasePos + 0.5f, 1)));
 
-            bool useCornerModel = false;
+            //Collect data from environment
+            Vector3 descendingDir = MetaToDirection(direction);
+            Vector3 rightFloatDir = Vector3.TransformNormal(descendingDir, Matrix.CreateRotationY((float)Math.PI / 2));
+            rightFloatDir.X = (float)Math.Round(rightFloatDir.X, 4); rightFloatDir.Z = (float)Math.Round(rightFloatDir.Z, 4); //Fix small numbers
 
-            if (IsStairs(leftBlock.ID))
+            Point3 facingDir = descendingDir.ToPoint3();
+            Point3 rightDir = rightFloatDir.ToPoint3();
+
+            BlockData frontBlock = source.GetData(blockPosition + facingDir);
+            BlockData backBlock = source.GetData(blockPosition - facingDir);
+            BlockData rightBlock = source.GetData(blockPosition + rightDir);
+            BlockData leftBlock = source.GetData(blockPosition - rightDir);
+
+            bool renderBaseStep = true;
+
+            int littleCornerModel = -1;
+
+            //Check if we need to make a corner
             {
-                byte type = GetType(leftBlock.Metadata);
-                if (type == direction)
+                if (IsStairs(frontBlock.ID))
                 {
-                    leftStairs = true;
-                }
-            }
-
-            if (IsStairs(rightBlock.ID))
-            {
-                byte type = GetType(rightBlock.Metadata);
-                if (type == direction)
-                {
-                    rightStairs = true;
-                }
-            }
-
-            if (IsStairs(frontBlock.ID))
-            {
-                useCornerModel = ((leftStairs && !rightStairs) || (!leftStairs && rightStairs));
-            }
-
-            bool useLittleCornerModel = false;
-            if (!useCornerModel)
-            {
-                if (IsStairs(backBlock.ID))
-                {
-                    leftStairs = false;
-                    if (IsStairs(leftBlock.ID))
+                    if (IsLeft(me.Metadata, frontBlock.Metadata))
                     {
-                        byte type = GetType(leftBlock.Metadata);
-                        //if (type == direction || Check(type, direction))
+                        bool leftOk = (IsStairs(leftBlock.ID) && me.Metadata == leftBlock.Metadata);
+                        bool rightOk = (IsStairs(rightBlock.ID) && me.Metadata == rightBlock.Metadata);
+
+                        if ((leftOk && !rightOk) || (!leftOk && rightOk))
                         {
-                            leftStairs = true;
+                            int frontLittleStep = -1;
+                            {
+                                Point3 frontPos = blockPosition + facingDir;
+                                
+                                BlockData me2 = source.GetData(frontPos);
+                                byte direction2 = GetType(me2.Metadata);
+
+                                Vector3 descendingDir2 = MetaToDirection(direction2);
+                                Vector3 rightFloatDir2 = Vector3.TransformNormal(descendingDir2, Matrix.CreateRotationY((float)Math.PI / 2));
+                                rightFloatDir2.X = (float)Math.Round(rightFloatDir2.X, 4); rightFloatDir2.Z = (float)Math.Round(rightFloatDir2.Z, 4); //Fix small numbers
+
+                                Point3 facingDir2 = descendingDir2.ToPoint3();
+                                Point3 rightDir2 = rightFloatDir2.ToPoint3();
+
+                                BlockData backBlock2 = source.GetData(frontPos - facingDir2);
+                                BlockData rightBlock2 = source.GetData(frontPos + rightDir2);
+                                BlockData leftBlock2 = source.GetData(frontPos - rightDir2);
+
+                                frontLittleStep = CheckLittleCorner(me2, backBlock2, leftBlock2, rightBlock2, direction2);
+  
+                            }
+
+                            if (frontLittleStep == -1)
+                            {
+                                switch (direction)
+                                {
+                                    case 0:
+                                        if (leftOk)
+                                            littleCornerModel = 2;
+                                        else
+                                            littleCornerModel = 1;
+                                        break;
+
+                                    case 1:
+                                        if (leftOk)
+                                            littleCornerModel = 0;
+                                        else
+                                            littleCornerModel = 3;
+                                        break;
+
+                                    case 2:
+                                        if (leftOk)
+                                            littleCornerModel = 1;
+                                        else
+                                            littleCornerModel = 0;
+                                        break;
+
+                                    case 3:
+                                        if (leftOk)
+                                            littleCornerModel = 3;
+                                        else
+                                            littleCornerModel = 2;
+                                        break;
+                                }
+                            }
                         }
                     }
-
-                    rightStairs = false;
-                    if (IsStairs(rightBlock.ID))
-                    {
-                        byte type = GetType(rightBlock.Metadata);
-                        //if (type == direction || Check(type, direction))
-                        {
-                            rightStairs = true;
-                        }
-                    }
-
-                    byte backBlockDir = GetType(backBlock.Metadata);
-
-                    if (!leftStairs && rightStairs)
-                    {
-                        byte rightType = GetType(rightBlock.Metadata);
-                        //if (rightType == direction || Check(rightType, direction))
-                        {
-                            useLittleCornerModel = true;
-                        }
-                    }
-                    else if (leftStairs && !rightStairs)
-                    {
-                        byte leftType = GetType(leftBlock.Metadata);
-                        //if (leftType == direction || Check(leftType, direction))
-                        {
-                            useLittleCornerModel = true;
-                        }
-                    }
-
-                    if (!useLittleCornerModel)
-                    {
-                        if (backBlockDir == direction && ((leftStairs && !rightStairs) || (!leftStairs && rightStairs)))
-                        {
-                            useLittleCornerModel = true;
-                        }
-                    }
-
-                    if (leftStairs && rightStairs)
-                        useLittleCornerModel = false;
-                }
-            }
-            #endregion
-
-            #region Corner model facing
-            if (useCornerModel)
-            {
-                if (rightStairs)
-                    degDirection += 90;
-            }
-
-            if (useLittleCornerModel)
-            {
-                if (rightStairs)
-                    degDirection -= 90;
-            }
-
-            if (degDirection < 0)
-                degDirection += 360;
-            if (degDirection >= 360)
-                degDirection = degDirection % 360;
-            #endregion
-
-            #region Build the model
-            //Bottom
-            if (CanBuildSide(downBlock, me))
-            {
-                l.Add(new CustomBlockData()
-                {
-                    Vertex1 = new Vector3(0, 0, 0),
-                    Vertex2 = new Vector3(1, 0, 0),
-                    Vertex3 = new Vector3(1, 0, 1),
-                    Vertex4 = new Vector3(0, 0, 1),
-
-                    Normal = new Vector3(0, -1, 0),
-                    Texture = _textureY
-                }.CreateUVs());
-            }
-
-            //Top-1
-            if (CanBuildSide(topBlock, me))
-            {
-                float top1Size = (useLittleCornerModel ? .5f : 1);
-
-                l.Add(new CustomBlockData()
-                {
-                    Vertex1 = new Vector3(.5f, 1, 0),
-                    Vertex2 = new Vector3(1f, 1, 0),
-                    Vertex3 = new Vector3(1f, 1, top1Size),
-                    Vertex4 = new Vector3(.5f, 1, top1Size),
-
-                    Normal = new Vector3(0, 1, 0),
-                    Texture = _textureY
-                }.CreateUVs(.5f, 0, 1, top1Size));
-            }
-
-            //Top-2(lower)
-            float top2Size = (useCornerModel ? 0.5f : 1f);
-            l.Add(new CustomBlockData()
-            {
-                Vertex1 = new Vector3(0, .5f, 0),
-                Vertex2 = new Vector3(.5f, .5f, 0),
-                Vertex3 = new Vector3(.5f, .5f, top2Size),
-                Vertex4 = new Vector3(0, .5f, top2Size),
-
-                Normal = new Vector3(0, 1, 0),
-                Texture = _textureY
-            }.CreateUVs(0, 0, .5f, top2Size));
-
-            //Back
-            if (CanBuildSide(backBlock, me))
-            {
-                back = (new CustomBlockData()
-                {
-                    Vertex1 = new Vector3(1, 0, 0),
-                    Vertex2 = new Vector3(1, 1, 0),
-                    Vertex3 = new Vector3(1, 1, 1),
-                    Vertex4 = new Vector3(1, 0, 1),
-
-                    Normal = new Vector3(1, 0, 0),
-                    Texture = _texture,
-                    TriFlip = true
-                }.CreateUVs().RotateUVs(90));
-                l.Add(back);
-            }
-
-            //Front-bottom
-            if (CanBuildSide(frontBlock, me))
-            {
-                front1 = new CustomBlockData()
-                {
-                    Vertex1 = new Vector3(0, 0, 0),
-                    Vertex2 = new Vector3(0, .5f, 0),
-                    Vertex3 = new Vector3(0, .5f, 1),
-                    Vertex4 = new Vector3(0, 0, 1),
-
-                    Normal = new Vector3(-1, 0, 0),
-                    Texture = _texture,
-                    TriFlip = true,
-                }.CreateUVs(0, 0, 0.5f, 1f).RotateUVs(90);
-                l.Add(front1);
-            }
-
-            //Front-top
-            float frontTopSize = ((useCornerModel || useLittleCornerModel) ? 0.5f : 1f);
-            front2 = new CustomBlockData()
-            {
-                Vertex1 = new Vector3(.5f, .5f, 0),
-                Vertex2 = new Vector3(.5f, 1, 0),
-                Vertex3 = new Vector3(.5f, 1, frontTopSize),
-                Vertex4 = new Vector3(.5f, .5f, frontTopSize),
-
-                Normal = new Vector3(-1, 0, 0),
-                Texture = _texture,
-
-                TriFlip = true,
-            }.CreateUVs(0, 0, 0.5f, frontTopSize).RotateUVs(90);
-            l.Add(front2);
-
-            //Front-top3 & Xpos
-            if (useCornerModel)
-            {
-                l.Add(new CustomBlockData()
-                {
-                    Normal = new Vector3(0, 1, 0),
-                    Texture = _texture,
-
-                    Vertex1 = new Vector3(0f, 1f, .5f),
-                    Vertex2 = new Vector3(.5f, 1f, .5f),
-                    Vertex3 = new Vector3(.5f, 1f, 1f),
-                    Vertex4 = new Vector3(0f, 1f, 1f),
-                }.CreateUVs(0, 0, .5f, .5f));
-
-                connectPart = (new CustomBlockData()
-                {
-                    Normal = new Vector3(0,0,-1),
-                    Texture = _texture,
-
-                    Vertex1 = new Vector3(0, .5f, 0.5f),
-                    Vertex2 = new Vector3(0.5f, .5f, .5f),
-                    Vertex3 = new Vector3(0.5f, 1f, .5f),
-                    Vertex4 = new Vector3(0f, 1f, 0.5f),
-                }.CreateUVs(0, 0, .5f, .5f));
-                l.Add(connectPart);
-            }
-
-            //Top-3(lower)
-            if (useLittleCornerModel)
-            {
-                l.Add(new CustomBlockData()
-                {
-                    Texture = _texture,
-                    Normal = new Vector3(0, 1, 0),
-
-                    Vertex1 = new Vector3(.5f, .5f, .5f),
-                    Vertex2 = new Vector3(1f, .5f, .5f),
-                    Vertex3 = new Vector3(1f, .5f, 1f),
-                    Vertex4 = new Vector3(.5f, .5f, 1f),
-                }.CreateUVs(0, 0, .5f, .5f));
-            }
-            
-            //Zpos
-            if (useCornerModel)
-            {
-                cornerBack = (new CustomBlockData()
-                {
-                    Vertex1 = new Vector3(0, 0, 1),
-                    Vertex2 = new Vector3(1, 0, 1),
-                    Vertex3 = new Vector3(1, 1, 1),
-                    Vertex4 = new Vector3(0, 1, 1),
-
-                    Normal = new Vector3(0, 0, 1),
-                    Texture = _texture,
-                    TriFlip = true,
-                }.CreateUVs());
-
-                l.Add(cornerBack);
-            }
-            else if (CanBuildSide(rightBlock, me) || useLittleCornerModel)
-            {
-                float side1Pos = (useLittleCornerModel ? 0.5f : 1f);
-                sidepa = (new CustomBlockData()
-                {
-                    Vertex1 = new Vector3(.5f, .5f, side1Pos),
-                    Vertex2 = new Vector3(.5f, 1, side1Pos),
-                    Vertex3 = new Vector3(1, 1, side1Pos),
-                    Vertex4 = new Vector3(1, .5f, side1Pos),
-
-                    Normal = new Vector3(0, 0, 1),
-                    Texture = _texture,
-                    TriFlip = true,
-
-                    UV1 = new Vector2(.5f, 0),
-                    UV2 = new Vector2(.5f, .5f),
-                    UV3 = new Vector2(1, .5f),
-                    UV4 = new Vector2(1, 0)
-                });
-                l.Add(sidepa);
-
-                sidepb = (new CustomBlockData()
-                {
-                    Vertex1 = new Vector3(0, 0, 1),
-                    Vertex2 = new Vector3(0, .5f, 1),
-                    Vertex3 = new Vector3(1, .5f, 1),
-                    Vertex4 = new Vector3(1, 0, 1),
-
-                    Normal = new Vector3(0, 0, 1),
-                    Texture = _texture,
-                    TriFlip = true,
-
-                    UV1 = new Vector2(0, 0),
-                    UV2 = new Vector2(0, .5f),
-                    UV3 = new Vector2(1f, .5f),
-                    UV4 = new Vector2(1f, 0)
-                });
-                l.Add(sidepb);
-            }
-
-            //Zneg
-            if ((CanBuildSide(leftBlock, me) && !useLittleCornerModel))
-            {
-                sidena = (new CustomBlockData()
-                {
-                    Vertex1 = new Vector3(.5f, 0, 0),
-                    Vertex2 = new Vector3(.5f, 1, 0),
-                    Vertex3 = new Vector3(1, 1, 0),
-                    Vertex4 = new Vector3(1, 0, 0),
-
-                    Normal = new Vector3(0, 0, -1),
-                    Texture = _texture,
-                    TriFlip = true,
-
-                    UV1 = new Vector2(.5f, 0),
-                    UV2 = new Vector2(.5f, 1),
-                    UV3 = new Vector2(1, 1),
-                    UV4 = new Vector2(1, 0)
-                });
-                l.Add(sidena);
-                sidenb = (new CustomBlockData()
-                {
-                    Vertex1 = new Vector3(0, 0, 0),
-                    Vertex2 = new Vector3(0, .5f, 0),
-                    Vertex3 = new Vector3(.5f, .5f, 0),
-                    Vertex4 = new Vector3(.5f, 0, 0),
-
-                    Normal = new Vector3(0, 0, -1),
-                    Texture = _texture,
-                    TriFlip = true,
-
-                    UV1 = new Vector2(0, 0),
-                    UV2 = new Vector2(0, .5f),
-                    UV3 = new Vector2(.5f, .5f),
-                    UV4 = new Vector2(.5f, 0)
-                });
-                l.Add(sidenb);
-            }
-            #endregion
-
-            #region Rotate the model
-            Vector3 rotationCenter = new Vector3(0.5f, 0.5f, 0.5f);
-
-            if (upsideDown)
-            {
-                for (int x = 0; x < l.Count; x++)
-                {
-                    CustomBlockData data = l[x];
-
-                    data.Vertex1 = Vector3.RotateX(data.Vertex1, rotationCenter, 180);
-                    data.Vertex2 = Vector3.RotateX(data.Vertex2, rotationCenter, 180);
-                    data.Vertex3 = Vector3.RotateX(data.Vertex3, rotationCenter, 180);
-                    data.Vertex4 = Vector3.RotateX(data.Vertex4, rotationCenter, 180);
-                    data.Normal.Y = -data.Normal.Y;
-                    if (data.Normal.Y != 0)
-                        data.TriFlip = true;
                 }
             }
 
-            Matrix rotate = Matrix.CreateRotationY(((float)Math.PI / 180f) * degDirection);
-
-            for (int x = 0; x < l.Count; x++)
+            //Check if we need to make a small corner
+            if (littleCornerModel == -1)  //It's not a corner so maybe..
             {
-                CustomBlockData data = l[x];
+                littleCornerModel = CheckLittleCorner(me, backBlock, leftBlock, rightBlock, direction);
+                renderBaseStep = (littleCornerModel == -1);
+            } 
 
-                data.Vertex1 = Vector3.TransformNormal(data.Vertex1 - rotationCenter, rotate) + rotationCenter;
-                data.Vertex2 = Vector3.TransformNormal(data.Vertex2 - rotationCenter, rotate) + rotationCenter;
-                data.Vertex3 = Vector3.TransformNormal(data.Vertex3 - rotationCenter, rotate) + rotationCenter;
-                data.Vertex4 = Vector3.TransformNormal(data.Vertex4 - rotationCenter, rotate) + rotationCenter;
-                data.Normal = Vector3.TransformNormal(data.Normal, rotate);
-            }
-
-            if (degDirection != 0)
+            if (littleCornerModel != -1)
             {
-                if (front1 != null)
-                    front1.TriFlip = false;
-                if (front2 != null)
-                    front2.TriFlip = false;
-
-                if (degDirection == 180)
+                switch (littleCornerModel)
                 {
-                    if(back != null)
-                        back.TriFlip = false;
+                    case 0:
+                        boxesToExport.Add(new BoundingBox(new Vector3(.5f, topBasePos, 0), new Vector3(1f, topBasePos + 0.5f, .5f)));
+                        break;
+                    case 1:
+                        boxesToExport.Add(new BoundingBox(new Vector3(0, topBasePos, 0), new Vector3(.5f, topBasePos + 0.5f, .5f)));
+                        break;
 
-                    if (sidepa != null)
-                    {
-                        sidepa.TriFlip = false;
-                        sidepb.TriFlip = false;
-                    }
-                }
-                if (degDirection == 90)
-                {
-                    if (sidena != null)
-                    {
-                        sidena.TriFlip = false;
-                        sidenb.TriFlip = false;
-                    }
-                    if (sidepa != null)
-                    {
-                        sidepa.TriFlip = false;
-                        sidepb.TriFlip = false;
-                    }
+                    case 2:
+                        boxesToExport.Add(new BoundingBox(new Vector3(0, topBasePos, 0.5f), new Vector3(.5f, topBasePos + 0.5f, 1)));
+                        break;
+                    case 3:
+                        boxesToExport.Add(new BoundingBox(new Vector3(.5f, topBasePos, .5f), new Vector3(1f, topBasePos + 0.5f, 1f)));
+                        break;
                 }
             }
 
-            if (connectPart != null && degDirection == 90)
+            if (renderBaseStep)
             {
-                connectPart.TriFlip = true;
-            }
-
-            if (cornerBack != null)
-            {
-                if (Math.Round(cornerBack.Normal.X, 4) == -1 || Math.Round(cornerBack.Normal.Z, 4) == 1)
+                switch (direction) //Ascending...
                 {
-                    cornerBack.TriFlip = false;
+                    case 0: //east = +X
+                        boxesToExport.Add(new BoundingBox(new Vector3(.5f, topBasePos, 0), new Vector3(1f, topBasePos + 0.5f, 1)));
+                        break;
+                    case 1: //west = -X
+                        boxesToExport.Add(new BoundingBox(new Vector3(0, topBasePos, 0), new Vector3(.5f, topBasePos + 0.5f, 1)));
+                        break;
+
+                    case 2: //south = +Z
+                        boxesToExport.Add(new BoundingBox(new Vector3(0, topBasePos, 0.5f), new Vector3(1f, topBasePos + 0.5f, 1)));
+                        break;
+                    case 3: //north = -Z
+                        boxesToExport.Add(new BoundingBox(new Vector3(0, topBasePos, 0), new Vector3(1f, topBasePos + 0.5f, .5f)));
+                        break;
                 }
             }
-            #endregion
 
-            return l;
+            GeometryGenerator geomGen = new GeometryGenerator();
+
+            return geomGen.GenerateModel(boxesToExport, source, blockPosition, _texture, _textureY, CanBuildSide);
         }
 
         private bool IsStairs(uint id)

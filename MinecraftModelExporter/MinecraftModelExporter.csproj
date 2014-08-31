@@ -112,6 +112,12 @@
     <Compile Include="GeometryProcessor\CustomBlockData.cs" />
     <Compile Include="GeometryProcessor\SolidBlock.cs" />
     <Compile Include="GeometryProcessor\TextureBuilder.cs" />
+    <Compile Include="GeomGenerator\BoundingBox.cs" />
+    <Compile Include="GeomGenerator\Face.cs" />
+    <Compile Include="GeomGenerator\GeometryGenerator.cs" />
+    <Compile Include="GeomGenerator\GpcWrapper.cs" />
+    <Compile Include="GeomGenerator\Triangulator.cs" />
+    <Compile Include="GeomGenerator\Vertex.cs" />
     <Compile Include="Matrix.cs" />
     <Compile Include="PartProgressTaskForm.cs">
       <SubType>Form</SubType>
@@ -182,6 +188,9 @@
   <ItemGroup>
     <Content Include="Dependencies\ICSharpCode.SharpZipLib.dll" />
     <Content Include="Dependencies\NamedBinaryTag.dll" />
+    <Content Include="gpc.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

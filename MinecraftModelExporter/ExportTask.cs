@@ -110,7 +110,8 @@ namespace MinecraftModelExporter
                                                 dat[x].Vertex1 += pos.ToVector3();
                                                 dat[x].Vertex2 += pos.ToVector3();
                                                 dat[x].Vertex3 += pos.ToVector3();
-                                                dat[x].Vertex4 += pos.ToVector3();
+                                                if (!dat[x].IsOneTriangle)
+                                                    dat[x].Vertex4 += pos.ToVector3();
                                                 dat[x].Source = bd;
                                             }
                                             customData.AddRange(dat);
@@ -133,7 +134,8 @@ namespace MinecraftModelExporter
                                                     dat[x].Vertex1 += pos.ToVector3();
                                                     dat[x].Vertex2 += pos.ToVector3();
                                                     dat[x].Vertex3 += pos.ToVector3();
-                                                    dat[x].Vertex4 += pos.ToVector3();
+                                                    if (!dat[x].IsOneTriangle)
+                                                        dat[x].Vertex4 += pos.ToVector3();
                                                     dat[x].Source = bd;
                                                 }
                                                 customData.AddRange(dat);
@@ -925,12 +927,18 @@ namespace MinecraftModelExporter
             if (range.TriFlip)// || (!range.TriFlip && (normal.X < 0 || normal.Y < 0 || normal.Z < 0)))
             {
                 WriteTriangle(foundSet, range.Vertex3, range.Vertex2, range.Vertex1, range.UV3, range.UV2, range.UV1, tri1Norm);
-                WriteTriangle(foundSet, range.Vertex1, range.Vertex4, range.Vertex3, range.UV1, range.UV4, range.UV3, tri2Norm);
+                if (!range.IsOneTriangle)
+                {
+                    WriteTriangle(foundSet, range.Vertex1, range.Vertex4, range.Vertex3, range.UV1, range.UV4, range.UV3, tri2Norm);
+                }
             }
             else
             {
                 WriteTriangle(foundSet, range.Vertex1, range.Vertex2, range.Vertex3, range.UV1, range.UV2, range.UV3, tri1Norm);
-                WriteTriangle(foundSet, range.Vertex3, range.Vertex4, range.Vertex1, range.UV3, range.UV4, range.UV1, tri2Norm);
+                if (!range.IsOneTriangle)
+                {
+                    WriteTriangle(foundSet, range.Vertex3, range.Vertex4, range.Vertex1, range.UV3, range.UV4, range.UV1, tri2Norm);
+                }
             }
         }
 

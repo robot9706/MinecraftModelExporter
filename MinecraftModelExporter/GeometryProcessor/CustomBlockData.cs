@@ -31,6 +31,8 @@ namespace MinecraftModelExporter.GeometryProcessor
 
         public Vector3 Normal;
 
+        public bool IsOneTriangle = false;
+
         public string Texture;
         public BlockData Source;
 

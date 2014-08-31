@@ -26,3 +26,4 @@ C:\Users\Bence\Documents\GitHub\MinecraftModelExporter\MinecraftModelExporter\ob
 C:\Users\Bence\Documents\GitHub\MinecraftModelExporter\MinecraftModelExporter\obj\Debug\MinecraftModelExporter.Properties.Resources.resources
 C:\Users\Bence\Documents\GitHub\MinecraftModelExporter\MinecraftModelExporter\obj\Debug\MinecraftModelExporter.TaskForm.resources
 C:\Users\Bence\Documents\GitHub\MinecraftModelExporter\MinecraftModelExporter\obj\Debug\MinecraftModelExporter.csproj.GenerateResource.Cache
+C:\Users\Bence\Documents\GitHub\MinecraftModelExporter\MinecraftModelExporter\bin\Debug\gpc.dll
