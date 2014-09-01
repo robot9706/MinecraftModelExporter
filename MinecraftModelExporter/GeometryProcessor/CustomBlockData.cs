@@ -19,6 +19,8 @@ namespace MinecraftModelExporter.GeometryProcessor
         public bool TriFlip = false;
         public bool KeepNormal = false;
 
+        public bool DoubleSided = false;
+
         public Vector3 Vertex1;
         public Vector3 Vertex2;
         public Vector3 Vertex3;

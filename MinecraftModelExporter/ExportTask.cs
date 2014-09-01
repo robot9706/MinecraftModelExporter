@@ -940,6 +940,13 @@ namespace MinecraftModelExporter
                     WriteTriangle(foundSet, range.Vertex3, range.Vertex4, range.Vertex1, range.UV3, range.UV4, range.UV1, tri2Norm);
                 }
             }
+
+            if (range.DoubleSided)
+            {
+                range.DoubleSided = false;
+                range.Normal = -range.Normal;
+                WriteCustomData(range, ref datas);
+            }
         }
 
         private int[] Find(string[] array, string what)

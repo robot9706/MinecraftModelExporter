@@ -124,8 +124,8 @@ namespace MinecraftModelExporter.GeometryProcessor
             AddBlock(new SolidBlock("Diamond ore", 56, "diamond_ore"));
             AddBlock(new SolidBlock("Block of diamond", 57, "diamond_block"));
             AddBlock(new SolidBlock("Crafting table", 58, new TextureMask().AddData("crafting_table_top", BlockTexture.Ypos).AddData("crafting_table_side", BlockTexture.Xneg | BlockTexture.Zpos | BlockTexture.Xpos).AddData("crafting_table_front", BlockTexture.Zneg).AddData("planks_oak", BlockTexture.Yneg).Textures));
-            //59: wheat
-            //60: farmland
+            AddBlock(new Wheat(59));
+            AddBlock(new Farmland(60));
             AddBlock(new Furnace(61));
             AddBlock(new FurnaceBurning(62));
             //63: standing sign
@@ -148,7 +148,7 @@ namespace MinecraftModelExporter.GeometryProcessor
             AddBlock(new SolidBlock("Snow block", 80, "snow"));
             //81: cactus
             AddBlock(new SolidBlock("Clay", 82, "clay"));
-            //83: sugar cannes
+            AddBlock(new BlockX(83, "SugarCane", "reeds"));
             AddBlock(new SolidBlock("Jukebox", 84, new TextureMask().AddData("jukebox_side", BlockTexture.Xneg | BlockTexture.Xpos | BlockTexture.Yneg | BlockTexture.Zneg | BlockTexture.Zpos).AddData("jukebox_top", BlockTexture.Ypos).Textures));
             AddBlock(new Fence(85, "planks_oak", "planks_oak"));
             AddBlock(new Pumpkin(86));
@@ -206,8 +206,8 @@ namespace MinecraftModelExporter.GeometryProcessor
             //138: beacon
             //139: cobblestone wall
             //140: flower pot
-            //141: carrots
-            //142: potatoes
+            AddBlock(new Carrot(141));
+            AddBlock(new Potato(142));
             //143: wooden button
             //144: mob head
             //145: anvil

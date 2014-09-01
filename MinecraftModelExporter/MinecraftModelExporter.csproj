@@ -76,8 +76,12 @@
     <Compile Include="GeometryProcessor\BlockRange.cs" />
     <Compile Include="GeometryProcessor\BlockSource.cs" />
     <Compile Include="GeometryProcessor\Blocks\Bed.cs" />
+    <Compile Include="GeometryProcessor\Blocks\BlockCrop.cs" />
+    <Compile Include="GeometryProcessor\Blocks\BlockX.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Carrot.cs" />
     <Compile Include="GeometryProcessor\Blocks\Dispenser.cs" />
     <Compile Include="GeometryProcessor\Blocks\Dropper.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Farmland.cs" />
     <Compile Include="GeometryProcessor\Blocks\Fence.cs" />
     <Compile Include="GeometryProcessor\Blocks\Fire.cs" />
     <Compile Include="GeometryProcessor\Blocks\Furnace.cs" />
@@ -87,7 +91,9 @@
     <Compile Include="GeometryProcessor\Blocks\Ladder.cs" />
     <Compile Include="GeometryProcessor\Blocks\Leaves.cs" />
     <Compile Include="GeometryProcessor\Blocks\Liquid.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Potato.cs" />
     <Compile Include="GeometryProcessor\Blocks\Torch.cs" />
+    <Compile Include="GeometryProcessor\Blocks\Wheat.cs" />
     <Compile Include="GeometryProcessor\ExportConfig.cs" />
     <Compile Include="GeometryProcessor\MetadataSolidBlock.cs" />
     <Compile Include="GeometryProcessor\MetadataSolidTextureBlock.cs" />
