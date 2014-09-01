@@ -10,10 +10,28 @@ namespace MinecraftModelExporter.GeomGenerator
         public Vector3 Min;
         public Vector3 Max;
 
+        public string TextureTag;
+
         public BoundingBox(Vector3 min, Vector3 max)
         {
-            Min = min;
-            Max = max;
+            Min = new Vector3(MinFloat(min.X, max.X), MinFloat(min.Y, max.Y), MinFloat(min.Z, max.Z));
+            Max = new Vector3(MaxFloat(min.X, max.X), MaxFloat(min.Y, max.Y), MaxFloat(min.Z, max.Z));
+        }
+
+        private float MinFloat(float a, float b)
+        {
+            if (a < b)
+                return a;
+
+            return b;
+        }
+
+        private float MaxFloat(float a, float b)
+        {
+            if (a > b)
+                return a;
+
+            return b;
         }
 
         public Vector3[] GetCorners()

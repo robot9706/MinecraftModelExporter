@@ -12,7 +12,7 @@ namespace MinecraftModelExporter.GeomGenerator
         /// <summary>
         /// Can build side: Input1: Block at side, Input2: Base block
         /// </summary>
-        public List<CustomBlockData> GenerateModel(List<BoundingBox> boxes, BlockSource source, Point3 blockPos, string textureName, string textureNameY, Func<BlockData, BlockData, bool> CanBuildSideMethod)
+        public static List<CustomBlockData> GenerateModel(List<BoundingBox> boxes, BlockSource source, Point3 blockPos, Func<Face, string> GetTextureMethod, Func<BlockData, BlockData, Point3, Point3, bool> CanBuildSideMethod, bool removeCoveredFaces)
         {
             BlockData currentBlock = source.GetData(blockPos);
 
@@ -30,6 +30,7 @@ namespace MinecraftModelExporter.GeomGenerator
                 {
                     //Get the face for the normal
                     Face face = GetFace(bb, normal);
+                    face.TextureTag = bb.TextureTag;
 
                     //Store it using the important Normal component
                     float val = face.GetNormalValue();
@@ -70,7 +71,7 @@ namespace MinecraftModelExporter.GeomGenerator
                         Point3 atSide = blockPos + dir3;
 
                         BlockData atSideBlock = source.GetData(atSide);
-                        if (!CanBuildSideMethod(atSideBlock, currentBlock))
+                        if (!CanBuildSideMethod(currentBlock, atSideBlock, blockPos, atSide))
                         {
                             continue;
                         }
@@ -82,7 +83,7 @@ namespace MinecraftModelExporter.GeomGenerator
                         Point3 atSide = blockPos + dir3;
 
                         BlockData atSideBlock = source.GetData(atSide);
-                        if (!CanBuildSideMethod(atSideBlock, currentBlock))
+                        if (!CanBuildSideMethod(currentBlock, atSideBlock, blockPos, atSide))
                         {
                             continue;
                         }
@@ -90,7 +91,6 @@ namespace MinecraftModelExporter.GeomGenerator
 
                     //pair2.Value contains the faces of the current Normal and Normal component value
                     //Let's calculate what we can see:
-
                     GpcPolygon polygon = new GpcPolygon();
                     foreach(Face face in pair2.Value)
                     {
@@ -102,7 +102,7 @@ namespace MinecraftModelExporter.GeomGenerator
 
                     //Remove the invisible parts
                     Vector3 inverseNormal = -pair.Key;
-                    if (faces.ContainsKey(inverseNormal))
+                    if (faces.ContainsKey(inverseNormal) && removeCoveredFaces)
                     {
                         if (faces[inverseNormal].ContainsKey(pair2.Key)) //There are faces, which make this face invisible
                         {
@@ -123,40 +123,37 @@ namespace MinecraftModelExporter.GeomGenerator
                     if (polygon.NofContours == 0)
                         continue;
 
-                    List<PolygonPoint> points = new List<PolygonPoint>();
                     foreach (GpcVertexList polys in polygon.Contour)
                     {
+                        List<PolygonPoint> points = new List<PolygonPoint>();
                         foreach (GpcVertex vert in polys.Vertex)
                         {
                             points.Add(new PolygonPoint(vert.X, vert.Y));
                         }
-                    }
-                    Polygon triangulatorPoly = new Polygon(points);
+                        Polygon triangulatorPoly = new Polygon(points);
 
-                    //MAGIC :D
-                    Triangulator.Triangulate(triangulatorPoly);
+                        //MAGIC :D
+                        Triangulator.Triangulate(triangulatorPoly);
 
-                    foreach (DelaunayTriangle tri in triangulatorPoly.Triangles)
-                    {
-                        CustomBlockData bd = new CustomBlockData();
+                        foreach (DelaunayTriangle tri in triangulatorPoly.Triangles)
+                        {
+                            CustomBlockData bd = new CustomBlockData();
 
-                        bd.IsOneTriangle = true;
-                        if (pair.Key.Y != 0)
-                            bd.Texture = textureNameY;
-                        else
-                            bd.Texture = textureName;
+                            bd.IsOneTriangle = true;
+                            bd.Texture = GetTextureMethod(pair2.Value[0]);
 
-                        bd.Vertex1 = ConvertToVertexPosition(tri.Points[0], pair.Key, pair2.Key);
-                        bd.Vertex2 = ConvertToVertexPosition(tri.Points[1], pair.Key, pair2.Key);
-                        bd.Vertex3 = ConvertToVertexPosition(tri.Points[2], pair.Key, pair2.Key);
+                            bd.Vertex1 = ConvertToVertexPosition(tri.Points[0], pair.Key, pair2.Key);
+                            bd.Vertex2 = ConvertToVertexPosition(tri.Points[1], pair.Key, pair2.Key);
+                            bd.Vertex3 = ConvertToVertexPosition(tri.Points[2], pair.Key, pair2.Key);
 
-                        bd.UV1 = new Vector2(tri.Points[0].Xf, tri.Points[0].Yf);
-                        bd.UV2 = new Vector2(tri.Points[1].Xf, tri.Points[1].Yf);
-                        bd.UV3 = new Vector2(tri.Points[2].Xf, tri.Points[2].Yf);
+                            bd.UV1 = new Vector2(tri.Points[0].Xf, tri.Points[0].Yf);
+                            bd.UV2 = new Vector2(tri.Points[1].Xf, tri.Points[1].Yf);
+                            bd.UV3 = new Vector2(tri.Points[2].Xf, tri.Points[2].Yf);
 
-                        bd.Normal = pair.Key;
+                            bd.Normal = pair.Key;
 
-                        datas.Add(bd);
+                            datas.Add(bd);
+                        }
                     }
                 }
             }
@@ -164,7 +161,7 @@ namespace MinecraftModelExporter.GeomGenerator
             return datas;
         }
 
-        private Face GetFace(BoundingBox bb, Vector3 normal)
+        private static Face GetFace(BoundingBox bb, Vector3 normal)
         {
             if (normal.Y == 0 && normal.Z == 0)
             {
@@ -221,7 +218,7 @@ namespace MinecraftModelExporter.GeomGenerator
             return new PointF(0, 0);
         }
 
-        private Vector3 ConvertToVertexPosition(TriangulationPoint point, Vector3 normal, float normalComponent)
+        private static Vector3 ConvertToVertexPosition(TriangulationPoint point, Vector3 normal, float normalComponent)
         {
             if (normal.X != 0 && normal.Y == 0 && normal.Z == 0)
             {

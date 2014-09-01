@@ -122,10 +122,10 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
 
         private int CheckLittleCorner(BlockData me, BlockData backBlock, BlockData leftBlock, BlockData rightBlock, byte direction)
         {
-            if (IsStairs(backBlock.ID))
+            if (IsStairs(backBlock))
             {
-                bool leftOk = (IsStairs(leftBlock.ID) && (leftBlock.Metadata == me.Metadata || IsLeft(me.Metadata, leftBlock.Metadata)));
-                bool rightOk = (IsStairs(rightBlock.ID) && (rightBlock.Metadata == me.Metadata || IsLeft(me.Metadata, rightBlock.Metadata)));
+                bool leftOk = (IsStairs(leftBlock) && (leftBlock.Metadata == me.Metadata || IsLeft(me.Metadata, leftBlock.Metadata)));
+                bool rightOk = (IsStairs(rightBlock) && (rightBlock.Metadata == me.Metadata || IsLeft(me.Metadata, rightBlock.Metadata)));
 
                 if (leftOk && rightOk)
                 {
@@ -205,12 +205,12 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
 
             //Check if we need to make a corner
             {
-                if (IsStairs(frontBlock.ID))
+                if (IsStairs(frontBlock))
                 {
                     if (IsLeft(me.Metadata, frontBlock.Metadata))
                     {
-                        bool leftOk = (IsStairs(leftBlock.ID) && me.Metadata == leftBlock.Metadata);
-                        bool rightOk = (IsStairs(rightBlock.ID) && me.Metadata == rightBlock.Metadata);
+                        bool leftOk = (IsStairs(leftBlock) && me.Metadata == leftBlock.Metadata);
+                        bool rightOk = (IsStairs(rightBlock) && me.Metadata == rightBlock.Metadata);
 
                         if ((leftOk && !rightOk) || (!leftOk && rightOk))
                         {
@@ -321,31 +321,43 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
                 }
             }
 
-            GeometryGenerator geomGen = new GeometryGenerator();
-
-            return geomGen.GenerateModel(boxesToExport, source, blockPosition, _texture, _textureY, CanBuildSide);
+            return GeometryGenerator.GenerateModel(boxesToExport, source, blockPosition, GetTexture, CanBuildSide, true);
         }
 
-        private bool IsStairs(uint id)
+        private string GetTexture(Face face)
         {
-            return (id == 53 || id == 67 || id == 108 || id == 109 || id == 114 || id == 128 || id == 134 || id == 135 || id == 136 || id == 156);
+            if (face.Normal.Y != 0)
+                return _textureY;
+
+            return _texture;
         }
 
-        bool CanBuildSide(BlockData data, BlockData me)
+        private bool IsStairs(BlockData data)
         {
-            if (Block.Blocks[data.GetGlobalID()] == null)
+            Block block = Block.Blocks[data.GetGlobalID()];
+            if (block == null)
+                return false;
+
+            return (block is Stairs);
+
+            //return (id == 53 || id == 67 || id == 108 || id == 109 || id == 114 || id == 128 || id == 134 || id == 135 || id == 136 || id == 156);
+        }
+
+        bool CanBuildSide(BlockData me, BlockData side, Point3 mePos, Point3 sidePos)
+        {
+            if (Block.Blocks[side.GetGlobalID()] == null)
                 return true;
 
-            if (Block.Blocks[data.GetGlobalID()].IsTransparent())
+            if (Block.Blocks[side.GetGlobalID()].IsTransparent())
             {
-                if (IsStairs(data.ID))
+                if (IsStairs(side))
                 {
-                    bool ud = IsUpsideDown(data.Metadata);
+                    bool ud = IsUpsideDown(side.Metadata);
                     bool od = IsUpsideDown(me.Metadata);
 
                     if (ud != od)
                     {
-                        if (GetType(me.Metadata) == GetType(data.Metadata))
+                        if (GetType(me.Metadata) == GetType(side.Metadata))
                             return true;
                         else
                             return false;

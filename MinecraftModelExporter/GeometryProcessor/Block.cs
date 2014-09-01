@@ -134,7 +134,7 @@ namespace MinecraftModelExporter.GeometryProcessor
             AddBlock(new Rails(66));
             AddBlock(new Stairs(67, "cobblestone"));
             //68: wall sign
-            //69: level
+            //69: lever
             //70: stone pressure plate
             //71: iron door
             //72: wooden pressure plate
@@ -150,7 +150,7 @@ namespace MinecraftModelExporter.GeometryProcessor
             AddBlock(new SolidBlock("Clay", 82, "clay"));
             //83: sugar cannes
             AddBlock(new SolidBlock("Jukebox", 84, new TextureMask().AddData("jukebox_side", BlockTexture.Xneg | BlockTexture.Xpos | BlockTexture.Yneg | BlockTexture.Zneg | BlockTexture.Zpos).AddData("jukebox_top", BlockTexture.Ypos).Textures));
-            AddBlock(new Fence(85));
+            AddBlock(new Fence(85, "planks_oak", "planks_oak"));
             AddBlock(new Pumpkin(86));
             AddBlock(new SolidBlock("Netherrack", 87, "netherrack"));
             AddBlock(new SolidBlock("Soul sand", 88, "soul_sand"));

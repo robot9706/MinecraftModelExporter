@@ -13,11 +13,14 @@ namespace MinecraftModelExporter.GeomGenerator
 
         public Vector3 Normal;
 
+        public string TextureTag;
+
         public Face(Vector3 a, Vector3 b, Vector3 normal)
         {
             A = a;
             B = b;
             Normal = normal;
+            TextureTag = "";
         }
 
         public float GetNormalValue()
