@@ -37,7 +37,6 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
             bool standing = (metadata == 5);
 
             float h = 0.625f;
-            float w = 0.125f;
             float ts = 1.0f - h;
             float s = 0.4375f;
             float s2 = 1f - s;

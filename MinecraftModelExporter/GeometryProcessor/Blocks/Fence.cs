@@ -6,7 +6,7 @@ using System.Text;
 
 namespace MinecraftModelExporter.GeometryProcessor.Blocks
 {
-    class Fence : Block
+    class Fence : Block, IGeometryGeneratorSource
     {
         private string _texture;
         private string _textureY;
@@ -37,22 +37,6 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
             return true;
         }
 
-        private string GetTexture(Face face)
-        {
-            if (face.Normal.Y != 0)
-                return _textureY;
-
-            return _texture;
-        }
-
-        private bool CanBuildSide(BlockData me, BlockData side, Point3 mePos, Point3 sidePos)
-        {
-            if (IsFence(side))
-                return false;
-
-            return !side.IsSolid;
-        }
-
         private bool IsFence(BlockData data)
         {
             Block bl = Block.Blocks[data.GetGlobalID()];
@@ -68,7 +52,6 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
             float partStart = onepix * 7;
             float partEnd = onepix * 9;
 
-            float tsize = 0.25f;
             float tstart = 0.375f;
             float tend = 1f - tstart;
 
@@ -99,7 +82,7 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
                 boxes.Add(new BoundingBox(new Vector3(partStart, 1f - (onepix * 8), 0), new Vector3(partEnd, 1f - (onepix * 11), tstart)));
             }
 
-            return GeometryGenerator.GenerateModel(boxes, source, blockPosition, GetTexture, CanBuildSide, false);
+            return GeometryGenerator.GenerateModel(boxes, source, blockPosition, false, this);
         }
 
         private Vector3 Rot(Vector3 a, Vector3 c, float y)
@@ -108,6 +91,27 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
             Vector2 n = Vector2.RotateAround(p, new Vector2(c.X, c.Z), y);
 
             return new Vector3(n.X, a.Y, n.Y);
+        }
+
+        bool IGeometryGeneratorSource.CanBuildSide(BlockData me, BlockData side, Point3 mePos, Point3 sidePos)
+        {
+            if (IsFence(side))
+                return false;
+
+            return !side.IsSolid;
+        }
+
+        string IGeometryGeneratorSource.GetTexture(Face face)
+        {
+            if (face.Normal.Y != 0)
+                return _textureY;
+
+            return _texture;
+        }
+
+        public Vector2[] GetUVsForTriangle(Vector2[] source, Face face)
+        {
+            return source;
         }
     }
 }

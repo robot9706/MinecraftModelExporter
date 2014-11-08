@@ -91,7 +91,7 @@ namespace MinecraftModelExporter.GeometryProcessor
             AddBlock(new Dispenser(23));
             AddBlock(new Sandstone(24));
             AddBlock(new SolidBlock("Noteblock", 25, "noteblock"));
-            AddBlock(new Bed(26)); 
+            AddBlock(new Bed(26));
             AddBlock(new Rails(27));
             AddBlock(new Rails(28));
             AddBlock(new StickyPiston(29, "Sticky piston"));

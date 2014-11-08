@@ -22,7 +22,10 @@ namespace MinecraftModelExporter.Builtins
 
             StreamWriter mtlSw = null;
             if (data.ExportConfig.ExportMaterials)
-                mtlSw = new StreamWriter(file.Replace("obj", "mtl"), false, Encoding.ASCII);
+            {
+                string mtlFile = Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file)) + ".mtl";
+                mtlSw = new StreamWriter(mtlFile, false, Encoding.ASCII);
+            }
 
             foreach (DataSet set in data.Data)
             {

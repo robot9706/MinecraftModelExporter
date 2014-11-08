@@ -126,6 +126,7 @@
     <Compile Include="GeomGenerator\Face.cs" />
     <Compile Include="GeomGenerator\GeometryGenerator.cs" />
     <Compile Include="GeomGenerator\GpcWrapper.cs" />
+    <Compile Include="GeomGenerator\IGeometryGeneratorSource.cs" />
     <Compile Include="GeomGenerator\Triangulator.cs" />
     <Compile Include="GeomGenerator\Vertex.cs" />
     <Compile Include="Matrix.cs" />

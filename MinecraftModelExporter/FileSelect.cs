@@ -12,7 +12,7 @@ namespace MinecraftModelExporter
     [DefaultEvent("OnFileSelected")]
     public partial class FileSelect : UserControl
     {
-        private string _fileFilter;
+        private string _fileFilter = string.Empty;
         public string Filter
         {
             get 

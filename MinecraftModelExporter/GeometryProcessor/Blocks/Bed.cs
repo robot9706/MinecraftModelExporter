@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MinecraftModelExporter.GeomGenerator;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MinecraftModelExporter.GeometryProcessor.Blocks
 {
-    class Bed : Block
+    class Bed : Block, IGeometryGeneratorSource
     {
         public Bed(byte id)
         {
@@ -38,9 +39,38 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
             };
         }
 
+        bool IGeometryGeneratorSource.CanBuildSide(BlockData me, BlockData side, Point3 mePos, Point3 sidePos)
+        {
+            if (side.ID == ID)
+                return false;
+
+            return !side.IsSolid;
+        }
+
+        string IGeometryGeneratorSource.GetTexture(Face face)
+        {
+            return face.TextureTag;
+        }
+
+        public Vector2[] GetUVsForTriangle(Vector2[] source, Face face)
+        {
+            return source;
+        }
+
         public override List<CustomBlockData> GenerateModel(byte metadata, BlockData me, BlockData Xpos, BlockData Xneg, BlockData Ypos, BlockData Yneg, BlockData Zpos, BlockData Zneg, BlockSource source, Point3 blockPosition)
         {
-            Dictionary<Vector3, BlockData> sideData = new Dictionary<Vector3, BlockData>();
+            float height = 0.5625f;
+
+            List<BoundingBox> bb = new List<BoundingBox>();
+
+            bool head = ((metadata & 8) != 0);
+            int direction = metadata & 3;
+
+            bb.Add(new BoundingBox(new Vector3(0, 0, 0), new Vector3(1, height, 1), head ? "head" : "foot"));
+
+            return GeometryGenerator.GenerateModel(bb, source, blockPosition, true, this);
+
+           /* Dictionary<Vector3, BlockData> sideData = new Dictionary<Vector3, BlockData>();
             sideData.Add(new Vector3(-1, 0, 0), Xneg);
             sideData.Add(new Vector3(1, 0, 0), Xpos);
             sideData.Add(new Vector3(0, 1, 0), Ypos);
@@ -259,7 +289,7 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
                 }
             }
 
-            return d;
+            return d;*/
         }
 
         private Vector3[] BuildBasedOnNormal(Vector3 normal, float y)

@@ -12,7 +12,7 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
     //south: +z
     //north: -z
 
-    class Stairs : Block
+    class Stairs : Block, IGeometryGeneratorSource
     {
         private string _texture;
         private string _textureY;
@@ -144,28 +144,24 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
                                 return 0; //2
                             else
                                 return 3; //1
-                            break;
 
                         case 1:
                             if (leftOk)
                                 return 2; //0
                             else
                                 return 1; //3
-                            break;
 
                         case 2:
                             if (leftOk)
                                 return 3; //1
                             else
                                 return 2; //0
-                            break;
 
                         case 3:
                             if (leftOk)
                                 return 1; //3
                             else
                                 return 0; //2
-                            break;
                     }
                 }
             }
@@ -321,15 +317,7 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
                 }
             }
 
-            return GeometryGenerator.GenerateModel(boxesToExport, source, blockPosition, GetTexture, CanBuildSide, true);
-        }
-
-        private string GetTexture(Face face)
-        {
-            if (face.Normal.Y != 0)
-                return _textureY;
-
-            return _texture;
+            return GeometryGenerator.GenerateModel(boxesToExport, source, blockPosition, true, this);
         }
 
         private bool IsStairs(BlockData data)
@@ -343,7 +331,7 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
             //return (id == 53 || id == 67 || id == 108 || id == 109 || id == 114 || id == 128 || id == 134 || id == 135 || id == 136 || id == 156);
         }
 
-        bool CanBuildSide(BlockData me, BlockData side, Point3 mePos, Point3 sidePos)
+        bool IGeometryGeneratorSource.CanBuildSide(BlockData me, BlockData side, Point3 mePos, Point3 sidePos)
         {
             if (Block.Blocks[side.GetGlobalID()] == null)
                 return true;
@@ -369,6 +357,19 @@ namespace MinecraftModelExporter.GeometryProcessor.Blocks
             }
 
             return true;
+        }
+
+        string IGeometryGeneratorSource.GetTexture(Face face)
+        {
+            if (face.Normal.Y != 0)
+                return _textureY;
+
+            return _texture;
+        }
+
+        public Vector2[] GetUVsForTriangle(Vector2[] source, Face face)
+        {
+            return source;
         }
     }
 }

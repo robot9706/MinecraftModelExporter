@@ -12,7 +12,7 @@ namespace MinecraftModelExporter.GeomGenerator
         /// <summary>
         /// Can build side: Input1: Block at side, Input2: Base block
         /// </summary>
-        public static List<CustomBlockData> GenerateModel(List<BoundingBox> boxes, BlockSource source, Point3 blockPos, Func<Face, string> GetTextureMethod, Func<BlockData, BlockData, Point3, Point3, bool> CanBuildSideMethod, bool removeCoveredFaces)
+        public static List<CustomBlockData> GenerateModel(List<BoundingBox> boxes, BlockSource source, Point3 blockPos, bool removeCoveredFaces, IGeometryGeneratorSource i)
         {
             BlockData currentBlock = source.GetData(blockPos);
 
@@ -71,7 +71,7 @@ namespace MinecraftModelExporter.GeomGenerator
                         Point3 atSide = blockPos + dir3;
 
                         BlockData atSideBlock = source.GetData(atSide);
-                        if (!CanBuildSideMethod(currentBlock, atSideBlock, blockPos, atSide))
+                        if (!i.CanBuildSide(currentBlock, atSideBlock, blockPos, atSide))
                         {
                             continue;
                         }
@@ -83,7 +83,7 @@ namespace MinecraftModelExporter.GeomGenerator
                         Point3 atSide = blockPos + dir3;
 
                         BlockData atSideBlock = source.GetData(atSide);
-                        if (!CanBuildSideMethod(currentBlock, atSideBlock, blockPos, atSide))
+                        if (!i.CanBuildSide(currentBlock, atSideBlock, blockPos, atSide))
                         {
                             continue;
                         }
@@ -140,15 +140,23 @@ namespace MinecraftModelExporter.GeomGenerator
                             CustomBlockData bd = new CustomBlockData();
 
                             bd.IsOneTriangle = true;
-                            bd.Texture = GetTextureMethod(pair2.Value[0]);
+                            bd.Texture = i.GetTexture(pair2.Value[0]);
 
                             bd.Vertex1 = ConvertToVertexPosition(tri.Points[0], pair.Key, pair2.Key);
                             bd.Vertex2 = ConvertToVertexPosition(tri.Points[1], pair.Key, pair2.Key);
                             bd.Vertex3 = ConvertToVertexPosition(tri.Points[2], pair.Key, pair2.Key);
 
-                            bd.UV1 = new Vector2(tri.Points[0].Xf, tri.Points[0].Yf);
-                            bd.UV2 = new Vector2(tri.Points[1].Xf, tri.Points[1].Yf);
-                            bd.UV3 = new Vector2(tri.Points[2].Xf, tri.Points[2].Yf);
+                            Vector2[] uvs = new Vector2[]{
+                                new Vector2(tri.Points[0].Xf, tri.Points[0].Yf),
+                                new Vector2(tri.Points[1].Xf, tri.Points[1].Yf),
+                                new Vector2(tri.Points[2].Xf, tri.Points[2].Yf)
+                            };
+
+                            uvs = i.GetUVsForTriangle(uvs, pair2.Value[0]);
+
+                            bd.UV1 = uvs[0];
+                            bd.UV2 = uvs[1];
+                            bd.UV3 = uvs[2];
 
                             bd.Normal = pair.Key;
 

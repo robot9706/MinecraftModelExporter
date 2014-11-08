@@ -43,7 +43,7 @@ namespace MinecraftModelExporter
                 {
                     _writer = new StreamWriter(_file, false, Encoding.ASCII);
                 }
-                catch (Exception ex)
+                catch
                 {
                     Console.WriteLine("Failed to open log file: " + _file);
                 }
