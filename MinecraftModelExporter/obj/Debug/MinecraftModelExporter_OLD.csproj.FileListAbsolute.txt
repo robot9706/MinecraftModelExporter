@@ -1,0 +1,2 @@
+C:\Users\Bence\Documents\GitHub\MinecraftModelExporter\MinecraftModelExporter\bin\Debug\MinecraftModelExporter.exe.config
+C:\Users\Bence\Documents\GitHub\MinecraftModelExporter\MinecraftModelExporter\obj\Debug\MinecraftModelExporter.exe
